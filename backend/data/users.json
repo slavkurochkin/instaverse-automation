@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "1",
+    "username": "Admin User",
+    "role": "admin",
+    "age": 37,
+    "bio": "Hello, my name is Slav, and I like photogrphy",
+    "favorite_style": "outdoor",
+    "email": "admin@gmail.com",
+    "password": "$2a$12$6GVrudvnEIl8YOZglieh.Odlguv1eOYYY6eLqkc3MQyKYa1z1mBNu"
+  }
+]
