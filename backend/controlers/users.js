@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import User from "../models/user.js";
 import users from "../data/users.json" assert { type: "json" };
+import user from "../models/user.js";
 
 
 const login = async (req, res) => {
@@ -60,7 +61,6 @@ const signup = async (req, res) => {
         users.push(
             result
         )
-        console.log(users)
         const token = jwt.sign({ email: result.email, id: result._id }, "1234", { expiresIn: "1h" });
 
         res.status(201).json({ result, token });
@@ -70,7 +70,51 @@ const signup = async (req, res) => {
     }
 };
 
+const updateUserProfile = async (req, res) => {
+    const { id: _id, userId } = req.params;
+
+    console.log(userId)
+    const { username, age, bio, email } = req.body;
+
+    try {
+        const userIndex = users.findIndex(t => t._id === userId);
+        if (userIndex === -1) {
+            return res.status(400).json({ msg: "User does not exist" });
+        }
+
+        const updatedUser = { ...users[userIndex], username, age, bio, email};
+        users[userIndex] = updatedUser;
+
+        res.status(200).json({ result: updatedUser });
+
+    } catch (error) {
+        res.status(500).json({ msg: "Something went wrong" });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    const { id: _id, userId } = req.params;
+    
+    try {
+        const userIndex = users.findIndex(t => t._id === userId);
+        if (userIndex === -1) {
+            return res.status(400).json({ msg: "User does not exist" });
+        }
+
+        users.splice(userIndex, 1);
+
+        res.status(200).json({ msg: "User deleted successfully" });
+
+    } catch (error) {
+        res.status(500).json({ msg: "Something went wrong" });
+    }
+};
+
+
+
 export {
     login,
-    signup
+    signup,
+    deleteUser,
+    updateUserProfile
 };

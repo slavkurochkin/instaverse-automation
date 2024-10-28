@@ -271,5 +271,49 @@ const deleteComment = async (req, res) => {
     res.status(200).json(updatedStory);
 };
 
+const deleteUserStories = async (req, res) => {
+    const { userId } = req.params; // Extract user ID from params
 
-export { getStories, getUserStories, createStory, updateStory, deleteStory, likeStory, getStoriesByTag, getAllTags, commentOnStory, deleteComment };
+    if (!userId) return res.status(400).json({ message: "User ID is required" });
+
+    // Filter out stories that belong to the user
+    const userStories = stories.filter(story => story.userId === userId);
+
+    if (userStories.length === 0) {
+        return res.status(404).json({ message: "No stories found for this user" });
+    }
+
+    // Remove the user's stories from the main stories array
+    for (let i = stories.length - 1; i >= 0; i--) {
+        if (stories[i].userId === userId) {
+            stories.splice(i, 1);
+        }
+    }
+
+    res.status(200).json({ message: "All stories associated with the user have been deleted" });
+};
+
+const deleteUserComments = async (req, res) => {
+    const { userId } = req.params; // Extract user ID from params
+
+    if (!userId) return res.status(400).json({ message: "User ID is required" });
+
+    let commentsDeleted = 0;
+    console.log("userId: ", userId)
+    // Iterate over all stories
+    stories.forEach(story => {
+        // Filter out comments that belong to the user
+        const initialCommentsLength = story.comments.length;
+        story.comments = story.comments.filter(comment => comment.userId !== userId);
+        commentsDeleted += initialCommentsLength - story.comments.length;
+    });
+
+    if (commentsDeleted === 0) {
+        return res.status(404).json({ message: "No comments found for this user" });
+    }
+
+    res.status(200).json({ message: `${commentsDeleted} comments associated with the user have been deleted` });
+};
+
+
+export { getStories, getUserStories, createStory, updateStory, deleteStory, likeStory, getStoriesByTag, getAllTags, commentOnStory, deleteComment, deleteUserStories, deleteUserComments };

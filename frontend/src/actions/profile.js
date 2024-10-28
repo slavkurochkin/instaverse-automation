@@ -24,6 +24,17 @@ export const getUserProfile = (id) => async (dispatch) => {
   };
 
 
+  export const getUserProfiles = () => async (dispatch) => {
+    try {
+      const { data } = await api.getUserProfiles(); // Fetch user profile data
+      dispatch({ type: 'FETCH_USER_PROFILES_SUCCESS', payload: data });
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };  
+
+
 export const getUserStories = (userId) => async (dispatch) => {
     try {
         const { data } = await api.fetchUserStories(userId);

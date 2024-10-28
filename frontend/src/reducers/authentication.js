@@ -1,4 +1,4 @@
-import { AUTHENTICATION, LOGOUT } from "../constants/actionTypes";
+import { AUTHENTICATION, LOGOUT, UPDATE_USER, DELETE_USER } from "../constants/actionTypes";
 
 const authenticationReducer = (state = { authData: null }, action) => {
     switch (action.type) {
@@ -17,6 +17,17 @@ const authenticationReducer = (state = { authData: null }, action) => {
                 authData: null
             }
 
+        case UPDATE_USER: // Update user profile
+            return {
+                ...state,
+                authData: action.payload
+            }
+
+        case DELETE_USER: // Delete user profile
+            return {
+                ...state,
+                authData: action.payload
+            }    
         default:
             return state;
     }

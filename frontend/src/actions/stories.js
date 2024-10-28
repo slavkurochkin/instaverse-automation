@@ -6,6 +6,8 @@ import {
     CREATE_STORY,
     UPDATE_STORY,
     DELETE_STORY,
+    DELETE_USER_STORIES,
+    DELETE_USER_COMMENTS
 } from "../constants/actionTypes";
 
 export const getStories = () => async (dispatch) => {
@@ -61,6 +63,24 @@ export const deleteStory = (id) => async (dispatch) => {
         dispatch({ type: DELETE_STORY, payload: id });
     } catch (error) {
         console.log(error.message)
+    }
+};
+
+export const deleteUserStories = (userId) => async (dispatch) => {
+    try {
+        await api.deleteUserStories(userId);
+        dispatch({ type: DELETE_USER_STORIES, payload: userId });
+    } catch (error) {
+        console.log(error.message);
+    }
+};
+
+export const deleteUserComments = (userId) => async (dispatch) => {
+    try {
+        await api.deleteUserComments(userId);
+        dispatch({ type: DELETE_USER_COMMENTS, payload: userId });
+    } catch (error) {
+        console.log(error.message);
     }
 };
 

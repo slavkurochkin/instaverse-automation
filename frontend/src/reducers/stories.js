@@ -12,6 +12,10 @@ const storyReducer = (state = [], action) => {
             return state.map(story => story._id === action.payload._id ? action.payload : story);
         case "DELETE_STORY":
             return state.filter(story => story._id !== action.payload);
+        case "DELETE_USER_STORIES":
+            return action.payload;
+        case "DELETE_USER_COMMENTS":
+            return action.payload;    
        case 'UPDATE_STORY_ORDER':
       return [
         ...state, action.payload ];

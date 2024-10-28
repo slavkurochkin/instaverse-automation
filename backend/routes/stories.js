@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getStories, getUserStories, createStory, updateStory, deleteStory, likeStory, getStoriesByTag, getAllTags, commentOnStory, deleteComment } from "../controlers/stories.js";
+import { getStories, getUserStories, createStory, updateStory, deleteStory, likeStory, getStoriesByTag, getAllTags, commentOnStory, deleteComment, deleteUserStories, deleteUserComments } from "../controlers/stories.js";
 const router = Router();
 import authentication from '../midlewares/authentication.js'
 
@@ -13,5 +13,7 @@ router.delete("/:id", authentication, deleteStory);
 router.patch("/:id/likeStory", authentication, likeStory);
 router.post("/:id/comment", authentication, commentOnStory);
 router.delete("/:id/comments/:commentId", authentication, deleteComment);
+router.delete("/user/:userId",  authentication, deleteUserStories);
+router.delete("/comments/user/:userId",  authentication, deleteUserComments);
 
 export default router;

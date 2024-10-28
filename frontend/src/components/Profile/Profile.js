@@ -176,7 +176,7 @@ export default function Profile() {
 
       <Modal
   title={null} // Customize the header title
-  visible={isModalVisible}
+  open={isModalVisible}
   onCancel={handleModalClose}
   footer={null}
 >

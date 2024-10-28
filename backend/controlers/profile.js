@@ -28,4 +28,16 @@ const getUserProfile = async (req, res) => {
     }
 }
 
-export { getProfile, getUserProfile };
+const getAllProfiles = async (req, res) => {
+    try {
+        const profilesWithoutPasswords = profiles.map(profile => {
+            const { password, ...profileWithoutPassword } = profile;
+            return profileWithoutPassword;
+        });
+        res.status(200).json(profilesWithoutPasswords);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export { getProfile, getUserProfile, getAllProfiles };
