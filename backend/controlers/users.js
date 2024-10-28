@@ -56,6 +56,7 @@ const signup = async (req, res) => {
             "age": age,
             "bio": bio,
             "email": email,
+            "totalPosts": 0,
             "password": encryptedPassword
         }
         users.push(
@@ -110,11 +111,10 @@ const deleteUser = async (req, res) => {
     }
 };
 
-
-
 export {
     login,
     signup,
     deleteUser,
-    updateUserProfile
+    updateUserProfile,
+    users
 };

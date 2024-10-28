@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Story from "../models/storyContent.js";
 import stories from "../data/stories.json" assert { type: "json" };
+import { users } from "./users.js"
 
 
 const getStories = async (req, res) => {
@@ -76,7 +77,6 @@ const createStory = async (req, res) => {
     const body = req.body;
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-
     const newStory = {
         ...body,
         _id: uniqueId,
@@ -86,28 +86,33 @@ const createStory = async (req, res) => {
         postDate: new Date().toISOString()
     };
 
-    console.log("Before update: ", newStory)
-    if(newStory.tags !== undefined){
-    const tagArray = newStory.tags.split(",");
-    newStory.tags = tagArray
+if (newStory.tags !== undefined) {
+        const tagArray = newStory.tags.split(",");
+        newStory.tags = tagArray;
     }
 
-    newStory.category = newStory.category
-    newStory.device = newStory.device
-    
-    if(newStory.social !== undefined){
-    const socialArray = newStory.social.join(', ');
-    newStory.social = socialArray
+    newStory.category = newStory.category;
+    newStory.device = newStory.device;
+
+    if (newStory.social !== undefined) {
+        const socialArray = newStory.social.join(', ');
+        newStory.social = socialArray;
     }
 
     try {
         stories.push(newStory);
+
+        // Increment totalPosts for the user
+        const user = users.find(u => u._id === req.userId);
+        if (user) {
+            user.totalPosts = (user.totalPosts || 0) + 1;
+        }
+
         res.status(201).json(newStory);
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
-
-}
+};
 
 const updateStory = async (req, res) => {
     const { id: _id } = req.params;
