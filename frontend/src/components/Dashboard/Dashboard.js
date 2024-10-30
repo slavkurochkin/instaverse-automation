@@ -137,8 +137,8 @@ function Dashboard() {
     },
     {
       title: 'Total Posts',
-      dataIndex: 'stories',
-      key: 'stories',
+      dataIndex: 'totalPosts',
+      key: 'totalPosts',
       render: (text) => text || 'N/A',
     },
     {
