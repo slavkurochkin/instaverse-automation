@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swaggerConfig.js';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -8,6 +10,10 @@ import userRoutes from './routes/users.js';
 import profileRoutes from './routes/profile.js';
 
 const app = express();
+
+// Route to Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 dotenv.config();
 // console.log(process.env)
 app.use(bodyParser.json({ limit: "32mb", extended: true }));
