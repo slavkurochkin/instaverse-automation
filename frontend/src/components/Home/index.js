@@ -1,4 +1,4 @@
-import Home from "./Home";
-import { memo } from "react";
+import Home from './Home';
+import { memo } from 'react';
 
 export default memo(Home);

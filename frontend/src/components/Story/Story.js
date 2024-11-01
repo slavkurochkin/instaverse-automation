@@ -1,19 +1,53 @@
-import React, { useState, useEffect, useCallback  } from 'react';
-import { useNavigate } from "react-router-dom";
-import { Card, Tooltip, Typography, Image, Modal, Button, message, Tag, Input, List } from "antd";
-import { EditOutlined, DeleteTwoTone, HeartTwoTone, MessageTwoTone, DeleteOutlined, UserOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Card,
+  Tooltip,
+  Typography,
+  Image,
+  Modal,
+  Button,
+  message,
+  Tag,
+  Input,
+  List,
+} from 'antd';
+import {
+  EditOutlined,
+  DeleteTwoTone,
+  HeartTwoTone,
+  MessageTwoTone,
+  DeleteOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { useDispatch } from 'react-redux';
 import moment from 'moment';
 import styles from './styles';
-import { deleteStory, likeStory, commentOnStory, deleteComment } from '../../actions/stories'; // Import action for commenting
-import { FETCH_PROFILE } from "../../constants/actionTypes";
-
+import {
+  deleteStory,
+  likeStory,
+  commentOnStory,
+  deleteComment,
+} from '../../actions/stories'; // Import action for commenting
+import { FETCH_PROFILE } from '../../constants/actionTypes';
 
 const { Meta } = Card;
 const { Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-const tagColors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "geekblue", "purple"];
+const tagColors = [
+  'magenta',
+  'red',
+  'volcano',
+  'orange',
+  'gold',
+  'lime',
+  'green',
+  'cyan',
+  'blue',
+  'geekblue',
+  'purple',
+];
 
 function Story({ story, setSelectedId }) {
   const showMessage = () => {
@@ -34,7 +68,6 @@ function Story({ story, setSelectedId }) {
     }
   }, [story]); // Run the effect whenever story changes
 
-
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -51,12 +84,15 @@ function Story({ story, setSelectedId }) {
 
   const dispatch = useDispatch();
 
-  const user = JSON.parse(localStorage.getItem("profile"));
+  const user = JSON.parse(localStorage.getItem('profile'));
 
-  const navigateToProfile = useCallback((userId) => {
-    dispatch({ type: FETCH_PROFILE });
-    navigate(`/profile/?userId=${userId}`);
-}, [dispatch, navigate]);
+  const navigateToProfile = useCallback(
+    (userId) => {
+      dispatch({ type: FETCH_PROFILE });
+      navigate(`/profile/?userId=${userId}`);
+    },
+    [dispatch, navigate],
+  );
 
   if (!story || !story._id) {
     return null; // or handle the case where story is undefined
@@ -64,60 +100,67 @@ function Story({ story, setSelectedId }) {
 
   const handleCommentSubmit = async () => {
     if (!story || !story._id) {
-        message.error('Story ID is missing.');
-        return;
+      message.error('Story ID is missing.');
+      return;
     }
 
     if (comment.trim() && user?.result?.username) {
-        const newComment = {
-            text: comment,
-            username: user?.result?.username,
-            date: new Date().toISOString(),
-        };
+      const newComment = {
+        text: comment,
+        username: user?.result?.username,
+        date: new Date().toISOString(),
+      };
 
-        try {
-            // Ensure the dispatch returns the updated story
-            const updatedStory = dispatch(commentOnStory(story._id, newComment));
-            
-            // Update local state with comments from the updated story
-            setComments(updatedStory.comments);  // Assuming `comments` is part of the story returned
+      try {
+        // Ensure the dispatch returns the updated story
+        const updatedStory = dispatch(commentOnStory(story._id, newComment));
 
-            // Reset the input field and close modal
-            setComment('');
-            setIsCommentModalOpen(false);
-            message.success('Comment added successfully!');
-        } catch (error) {
-            message.error('Failed to add comment. Please try again.');
-        }
+        // Update local state with comments from the updated story
+        setComments(updatedStory.comments); // Assuming `comments` is part of the story returned
+
+        // Reset the input field and close modal
+        setComment('');
+        setIsCommentModalOpen(false);
+        message.success('Comment added successfully!');
+      } catch (error) {
+        message.error('Failed to add comment. Please try again.');
+      }
     } else {
-        message.error('Please enter a comment and ensure you are logged in.');
+      message.error('Please enter a comment and ensure you are logged in.');
     }
-};
+  };
 
-const handleCommentDelete = (commentId) => {
-      // Optimistically update the UI by removing the comment from the local state
-      const updatedComments = comments.filter((comment) => comment.commentId !== commentId);
-      setComments(updatedComments);
-      console.log('Comment ID to delete:', commentId);
-      // Then, dispatch the action to delete the comment from the backend
-      dispatch(deleteComment(story._id, commentId))
-        .then(() => {
-          message.success('Comment deleted successfully!');
-        })
-        .catch(() => {
-          // If the API call fails, revert the local state by adding the comment back
-          setComments([...updatedComments, comments.find(comment => comment.commentId === commentId)]);
-          message.error('Failed to delete comment. Please try again.');
+  const handleCommentDelete = (commentId) => {
+    // Optimistically update the UI by removing the comment from the local state
+    const updatedComments = comments.filter(
+      (comment) => comment.commentId !== commentId,
+    );
+    setComments(updatedComments);
+    console.log('Comment ID to delete:', commentId);
+    // Then, dispatch the action to delete the comment from the backend
+    dispatch(deleteComment(story._id, commentId))
+      .then(() => {
+        message.success('Comment deleted successfully!');
+      })
+      .catch(() => {
+        // If the API call fails, revert the local state by adding the comment back
+        setComments([
+          ...updatedComments,
+          comments.find((comment) => comment.commentId === commentId),
+        ]);
+        message.error('Failed to delete comment. Please try again.');
       });
   };
 
   const cardActions = [
     <div style={styles.actions}>
       <Tooltip
-        placement='top'
-        title='Like'
-        color='magenta'
-        onClick={() => { dispatch(likeStory(story._id)) }}
+        placement="top"
+        title="Like"
+        color="magenta"
+        onClick={() => {
+          dispatch(likeStory(story._id));
+        }}
       >
         <HeartTwoTone twoToneColor="magenta" />
         &nbsp; {story.likes.length} &nbsp;
@@ -125,17 +168,17 @@ const handleCommentDelete = (commentId) => {
     </div>,
     <div>
       <Tooltip
-        placement='top'
-        color='blue'
-        title='Comments'
+        placement="top"
+        color="blue"
+        title="Comments"
         onClick={() => setIsCommentModalOpen(true)}
       >
-         <MessageTwoTone />
+        <MessageTwoTone />
       </Tooltip>
-      <Modal 
-        title="Add Comment" 
-        open={isCommentModalOpen} 
-        onOk={handleCommentSubmit} 
+      <Modal
+        title="Add Comment"
+        open={isCommentModalOpen}
+        onOk={handleCommentSubmit}
         onCancel={() => setIsCommentModalOpen(false)}
         footer={[
           <Button key="cancel" onClick={() => setIsCommentModalOpen(false)}>
@@ -143,33 +186,26 @@ const handleCommentDelete = (commentId) => {
           </Button>,
           <Button key="submit" type="primary" onClick={handleCommentSubmit}>
             Submit
-          </Button>
+          </Button>,
         ]}
       >
-        <TextArea 
-          rows={4} 
-          value={comment} 
-          onChange={(e) => setComment(e.target.value)} 
-          placeholder="Add your comment here..." 
+        <TextArea
+          rows={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Add your comment here..."
         />
       </Modal>
     </div>,
-    <Tooltip
-      placement='top'
-      title='Edit'
-    >
+    <Tooltip placement="top" title="Edit">
       <EditOutlined onClick={() => setSelectedId(story._id)} />
     </Tooltip>,
-    <Tooltip
-      placement='top'
-      title='Delete'
-      color='red'
-    >
+    <Tooltip placement="top" title="Delete" color="red">
       <DeleteTwoTone twoToneColor="red" onClick={showModal} />
-      <Modal 
-        title="Delete Post" 
-        open={isModalOpen} 
-        onOk={handleOk} 
+      <Modal
+        title="Delete Post"
+        open={isModalOpen}
+        onOk={handleOk}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -177,90 +213,99 @@ const handleCommentDelete = (commentId) => {
           </Button>,
           <Button key="delete" type="primary" danger onClick={handleOk}>
             Delete
-          </Button>
+          </Button>,
         ]}
       >
         <p>Are you sure you want to delete this post?</p>
       </Modal>
-    </Tooltip>
+    </Tooltip>,
   ];
 
   return (
-    
     <Card
-    style={styles.card}
-    cover={<Image src={story.image} />}
-    actions={
-      user?.result?._id === story?.userId ?
-        cardActions :
-        user?.result ?
-          cardActions.slice(0, 2)
-          : null
-    }
-  >
-    <Meta 
-      title={
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span>{story.username}</span>
-          <Button 
-            type="link" 
-            icon={<UserOutlined />} 
-            onClick={() => navigateToProfile(story.userId)}
-            style={{ marginLeft: 8 }}
-          >View profile</Button>
-        </div>
-      } 
-    />
-    
-    <Paragraph
-      style={{ margin: 0 }}
-      ellipsis={{
-        rows: 2,
-        expandable: true,
-        symbol: "more",
-        onExpand: () => setExpand(true),
-        onEllipsis: () => setExpand(false),
-      }}
+      style={styles.card}
+      cover={<Image src={story.image} />}
+      actions={
+        user?.result?._id === story?.userId
+          ? cardActions
+          : user?.result
+            ? cardActions.slice(0, 2)
+            : null
+      }
     >
-      {story.caption}
-    </Paragraph>
-     <div>
-      {expand && story?.tags?.map((tag, index) => (
-        <Tag color={tagColors[index % tagColors.length]} key={index}>{tag.toUpperCase()}</Tag>
-      ))}
-</div>
+      <Meta
+        title={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span>{story.username}</span>
+            <Button
+              type="link"
+              icon={<UserOutlined />}
+              onClick={() => navigateToProfile(story.userId)}
+              style={{ marginLeft: 8 }}
+            >
+              View profile
+            </Button>
+          </div>
+        }
+      />
+
+      <Paragraph
+        style={{ margin: 0 }}
+        ellipsis={{
+          rows: 2,
+          expandable: true,
+          symbol: 'more',
+          onExpand: () => setExpand(true),
+          onEllipsis: () => setExpand(false),
+        }}
+      >
+        {story.caption}
+      </Paragraph>
+      <div>
+        {expand &&
+          story?.tags?.map((tag, index) => (
+            <Tag color={tagColors[index % tagColors.length]} key={index}>
+              {tag.toUpperCase()}
+            </Tag>
+          ))}
+      </div>
       <br />
-      <Text type="secondary">{story.category}, image taken on the {story.device}</Text>
+      <Text type="secondary">
+        {story.category}, image taken on the {story.device}
+      </Text>
       <br />
       <Text type="secondary">find it on {story.social}</Text>
       <br />
       <Text type="secondary">{moment(story.postDate).fromNow()}</Text>
-      
+
       {/* Render Comments Section */}
       <div style={{ marginTop: '16px' }}>
         <Typography.Title level={5}>Comments</Typography.Title>
-       
-<List
-  dataSource={comments}
-  renderItem={(comment, index) => (
-    <List.Item key={index}>
-      <List.Item.Meta
-        title={comment.username || 'Unknown User'}
-        description={comment.text || 'No comment text'}
-      />
-      <Text type="secondary">
-        {comment.commentDate ? moment(comment.commentDate).fromNow() : "No date available"}
-      </Text>
-      {(story.userId === user?.result?._id || comment.username === user?.result?.username) && (
-        <Button
-          type="link"
-          icon={<DeleteOutlined />}
-          onClick={() => handleCommentDelete(comment.commentId)}
+
+        <List
+          dataSource={comments}
+          renderItem={(comment, index) => (
+            <List.Item key={index}>
+              <List.Item.Meta
+                title={comment.username || 'Unknown User'}
+                description={comment.text || 'No comment text'}
+              />
+              <Text type="secondary">
+                {comment.commentDate
+                  ? moment(comment.commentDate).fromNow()
+                  : 'No date available'}
+              </Text>
+              {(story.userId === user?.result?._id ||
+                comment.username === user?.result?.username) && (
+                <Button
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleCommentDelete(comment.commentId)}
+                />
+              )}
+            </List.Item>
+          )}
         />
-      )}
-    </List.Item>
-  )}
-/>
       </div>
     </Card>
   );

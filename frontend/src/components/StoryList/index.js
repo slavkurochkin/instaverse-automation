@@ -1,5 +1,4 @@
-import StoryList from "./StoryList";
-import { memo } from "react";
+import StoryList from './StoryList';
+import { memo } from 'react';
 
-
-export default memo(StoryList)
+export default memo(StoryList);

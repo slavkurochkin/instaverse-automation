@@ -11,7 +11,12 @@ const DeleteConfirmationModal = ({ open, onConfirm, onCancel, record }) => {
         <Button key="cancel" onClick={onCancel}>
           Cancel
         </Button>,
-        <Button key="delete" type="primary" danger onClick={() => onConfirm(record)}>
+        <Button
+          key="delete"
+          type="primary"
+          danger
+          onClick={() => onConfirm(record)}
+        >
           Delete
         </Button>,
       ]}
