@@ -10,5 +10,5 @@ console.log(result);
 }
 */
 
-let result = JSON.stringify(stories)
+let result = JSON.stringify(stories);
 // console.log(result)
