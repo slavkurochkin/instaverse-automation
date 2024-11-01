@@ -1,5 +1,4 @@
-import StoryForm from "./StoryForm";
-import { memo } from "react";
+import StoryForm from './StoryForm';
+import { memo } from 'react';
 
-
-export default memo(StoryForm)
+export default memo(StoryForm);

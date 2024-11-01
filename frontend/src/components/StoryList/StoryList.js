@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Empty, Button, Dropdown, Space, Input, Spin } from "antd";
+import { Row, Col, Empty, Button, Dropdown, Space, Input, Spin } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import Story from '../Story';
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux';
 
 const { Search } = Input;
 
@@ -22,10 +22,13 @@ export default function StoryList({ setSelectedId }) {
     setTimeout(() => {
       setLoading(false); // Set loading to false after stories are fetched
     }, 300); // Mock delay for fetching data
-    
+
     // Scroll event listener to load more stories when reaching the bottom of the page
     const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 200
+      ) {
         // Load more stories when user scrolls near the bottom
         setVisibleCount((prevCount) => prevCount + 6);
       }
@@ -65,33 +68,40 @@ export default function StoryList({ setSelectedId }) {
     if (selectedCategory === 'all') {
       return stories;
     }
-    return stories.filter(story => story.category.toLowerCase() === selectedCategory.toLowerCase());
+    return stories.filter(
+      (story) =>
+        story.category.toLowerCase() === selectedCategory.toLowerCase(),
+    );
   };
 
   // Function to filter stories by search query (tags)
   const filterStoriesBySearch = (stories) => {
     if (!searchQuery) return stories; // If no search query, return original stories
 
-    return stories.filter(story =>
-      story.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    return stories.filter((story) =>
+      story.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   };
 
   // Get filtered and sorted stories
   const filteredStoriesByCategory = filterStoriesByCategory(stories);
-  const filteredStoriesBySearch = filterStoriesBySearch(filteredStoriesByCategory);
+  const filteredStoriesBySearch = filterStoriesBySearch(
+    filteredStoriesByCategory,
+  );
   const sortedStories = sortStories(filteredStoriesBySearch);
 
   // Handle sorting by likes
   const handleSortLikes = () => {
     setSortCriteria('likes');
-    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+    setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
   };
 
   // Handle sorting by date
   const handleSortDate = () => {
     setSortCriteria('date');
-    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+    setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
   };
 
   // Handle menu item click for category
@@ -101,11 +111,11 @@ export default function StoryList({ setSelectedId }) {
 
   // Handle resetting sorting, category, and search to default state
   const handleResetAll = () => {
-    setSortCriteria('');     // Reset sorting
-    setSortOrder('');        // Reset sort order
-    setSelectedCategory('all');  // Reset category
-    setSearchQuery('');      // Clear search field
-    setVisibleCount(6);      // Reset visible posts count
+    setSortCriteria(''); // Reset sorting
+    setSortOrder(''); // Reset sort order
+    setSelectedCategory('all'); // Reset category
+    setSearchQuery(''); // Clear search field
+    setVisibleCount(6); // Reset visible posts count
   };
 
   // Handle search input change
@@ -113,8 +123,12 @@ export default function StoryList({ setSelectedId }) {
     setSearchQuery(e.target.value);
   };
 
-  const generateMenuItems = (menuItems, selectedCategory, handleCategoryChange) => {
-    return menuItems.map(item => ({
+  const generateMenuItems = (
+    menuItems,
+    selectedCategory,
+    handleCategoryChange,
+  ) => {
+    return menuItems.map((item) => ({
       key: item.key,
       label: item.label,
       onClick: handleCategoryChange, // Pass the handler here if needed
@@ -127,10 +141,10 @@ export default function StoryList({ setSelectedId }) {
       { key: 'animals', label: 'Animals' },
       { key: 'nature', label: 'Nature' },
       { key: 'portrait', label: 'Portrait' },
-      { key: 'sport', label: 'Sport' }
+      { key: 'sport', label: 'Sport' },
     ],
     selectedCategory,
-    handleCategoryChange
+    handleCategoryChange,
   );
 
   // Function to render the sorting arrow icon
@@ -170,12 +184,16 @@ export default function StoryList({ setSelectedId }) {
         </Button>
 
         {/* Category Dropdown */}
-        <Dropdown 
+        <Dropdown
           menu={{ items: categoryMenuItems }} // Replace `overlay` with `menu`
           trigger={['click']}
         >
           <Button>
-            {selectedCategory === 'all' ? 'All Categories' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} <DownOutlined />
+            {selectedCategory === 'all'
+              ? 'All Categories'
+              : selectedCategory.charAt(0).toUpperCase() +
+                selectedCategory.slice(1)}{' '}
+            <DownOutlined />
           </Button>
         </Dropdown>
 
@@ -190,21 +208,23 @@ export default function StoryList({ setSelectedId }) {
         <div style={{ textAlign: 'center', padding: '50px 0' }}>
           <Spin size="large" />
         </div>
+      ) : // Render Stories
+      sortedStories.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <Empty
+            description={
+              <span style={{ color: '#999' }}>No stories to show</span>
+            }
+          />
+        </div>
       ) : (
-        // Render Stories
-        sortedStories.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <Empty description={<span style={{ color: '#999' }}>No stories to show</span>} />
-          </div>
-        ) : (
-          <Row gutter={[48, 32]}>
-            {sortedStories.slice(0, visibleCount).map((story) => (
-              <Col key={story._id} lg={24} xl={12} xxl={8}>
-                <Story setSelectedId={setSelectedId} story={story} />
-              </Col>
-            ))}
-          </Row>
-        )
+        <Row gutter={[48, 32]}>
+          {sortedStories.slice(0, visibleCount).map((story) => (
+            <Col key={story._id} lg={24} xl={12} xxl={8}>
+              <Story setSelectedId={setSelectedId} story={story} />
+            </Col>
+          ))}
+        </Row>
       )}
     </div>
   );

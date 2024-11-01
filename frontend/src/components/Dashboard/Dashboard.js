@@ -1,15 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Space, Table, Tag, Button, Modal, Form, Input, InputNumber, Card, message } from 'antd';
+import {
+  Space,
+  Table,
+  Tag,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Card,
+  message,
+} from 'antd';
 import { useDispatch } from 'react-redux';
 import { getUserProfiles } from '../../actions/profile';
-import { updateUser, deleteUser } from "../../actions/authentication";
-import { deleteUserStories, deleteUserComments } from "../../actions/stories";
+import { updateUser, deleteUser } from '../../actions/authentication';
+import { deleteUserStories, deleteUserComments } from '../../actions/stories';
 
 import Highlighter from 'react-highlight-words';
 
 const initialData = [
-  { key: '1', name: 'John Brown', age: 32, address: '123 Main St, New York', tags: ['nature', 'portrait'], totalPosts: 64 },
-  { key: '2', name: 'Jim Green', age: 42, address: '456 Elm St, London', tags: ['sport', 'animals'], totalPosts: 60 },
+  {
+    key: '1',
+    name: 'John Brown',
+    age: 32,
+    address: '123 Main St, New York',
+    tags: ['nature', 'portrait'],
+    totalPosts: 64,
+  },
+  {
+    key: '2',
+    name: 'Jim Green',
+    age: 42,
+    address: '456 Elm St, London',
+    tags: ['sport', 'animals'],
+    totalPosts: 60,
+  },
 ];
 
 function Dashboard() {
@@ -42,9 +67,13 @@ function Dashboard() {
       try {
         await dispatch(updateUser(updatedRecord));
 
-        const newData = editingRecord._id 
-          ? allUsersData.map((item) => (item._id === editingRecord._id ? updatedRecord : item))
-          : data.map((item) => (item.key === editingRecord.key ? updatedRecord : item));
+        const newData = editingRecord._id
+          ? allUsersData.map((item) =>
+              item._id === editingRecord._id ? updatedRecord : item,
+            )
+          : data.map((item) =>
+              item.key === editingRecord.key ? updatedRecord : item,
+            );
 
         editingRecord._id ? setAllUsersData(newData) : setData(newData);
 
@@ -70,8 +99,8 @@ function Dashboard() {
       await dispatch(deleteUserStories(key));
       await dispatch(deleteUser(key));
 
-      const newData = isAllUsersTable 
-        ? allUsersData.filter((item) => item._id !== key) 
+      const newData = isAllUsersTable
+        ? allUsersData.filter((item) => item._id !== key)
         : data.filter((item) => item.key !== key);
 
       isAllUsersTable ? setAllUsersData(newData) : setData(newData);
@@ -84,13 +113,22 @@ function Dashboard() {
   const renderActions = (record, isAllUsersTable = false) => (
     <Space size="middle">
       <Button onClick={() => handleEdit(record, isAllUsersTable)}>Edit</Button>
-    <Button danger onClick={() => {
-      Modal.confirm({
-        title: 'Are you sure you want to delete this user?',
-        content: 'This will remove all user posts and comments',
-        onOk: () => handleDelete(isAllUsersTable ? record._id : record.key, isAllUsersTable),
-      });
-    }}>Delete</Button>
+      <Button
+        danger
+        onClick={() => {
+          Modal.confirm({
+            title: 'Are you sure you want to delete this user?',
+            content: 'This will remove all user posts and comments',
+            onOk: () =>
+              handleDelete(
+                isAllUsersTable ? record._id : record.key,
+                isAllUsersTable,
+              ),
+          });
+        }}
+      >
+        Delete
+      </Button>
     </Space>
   );
 
@@ -105,7 +143,9 @@ function Dashboard() {
       render: (_, { tags }) => (
         <>
           {tags.map((tag) => (
-            <Tag color="blue" key={tag}>{tag}</Tag>
+            <Tag color="blue" key={tag}>
+              {tag}
+            </Tag>
           ))}
         </>
       ),
@@ -151,7 +191,11 @@ function Dashboard() {
   return (
     <div style={{ padding: 24 }}>
       <Card title="Dashboard">
-        <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={{ pageSize: 5 }}
+        />
       </Card>
 
       <Modal
@@ -160,7 +204,7 @@ function Dashboard() {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-         <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical">
           <Form.Item
             name="email"
             label="Email"
