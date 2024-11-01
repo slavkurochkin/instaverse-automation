@@ -5,116 +5,105 @@ import User from "../models/user.js";
 import users from "../data/users.json" assert { type: "json" };
 import user from "../models/user.js";
 
-
 const login = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    try {
-        const oldUser = users.find(t => t.email === email);
-        if (!oldUser) {
-            return res.status(400).json({ msg: "User does not exist" });
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, oldUser.password);
-
-        if (!isPasswordValid) {
-            return res.status(400).json({ msg: "Invalid password" });
-        }
-
-        const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, "1234", { expiresIn: "1h" });
-
-        res.status(200).json({ result: oldUser, token });
-
-    } catch (error) {
-        res.status(500).json({ msg: "Something went wrong" });
+  try {
+    const oldUser = users.find((t) => t.email === email);
+    if (!oldUser) {
+      return res.status(400).json({ msg: "User does not exist" });
     }
 
+    const isPasswordValid = await bcrypt.compare(password, oldUser.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ msg: "Invalid password" });
+    }
+
+    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, "1234", {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({ result: oldUser, token });
+  } catch (error) {
+    res.status(500).json({ msg: "Something went wrong" });
+  }
 };
 
 const signup = async (req, res) => {
+  const { username, age, bio, email, password, confirmPassword } = req.body;
 
-    const { username, age, bio ,email, password, confirmPassword } = req.body;
-
-    try {
-        const oldUser = users.find(t => t.email === email);
-        if (oldUser) {
-            return res.status(400).json({ msg: "Email already exists" });
-        }
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({ msg: "Passwords do not match" });
-        }
-
-        const encryptedPassword = await bcrypt.hash(password, 12);
-        //const result = await User.create({ username, email, password: encryptedPassword });
-        let id = users.length + 1;
-
-        let result= {
-            "_id": id.toString(),
-            "username": username,
-            "role": "user",
-            "age": age,
-            "bio": bio,
-            "email": email,
-            "totalPosts": 0,
-            "password": encryptedPassword
-        }
-        users.push(
-            result
-        )
-        const token = jwt.sign({ email: result.email, id: result._id }, "1234", { expiresIn: "1h" });
-
-        res.status(201).json({ result, token });
-
-    } catch (error) {
-        res.status(500).json({ msg: "Something went wrong" });
+  try {
+    const oldUser = users.find((t) => t.email === email);
+    if (oldUser) {
+      return res.status(400).json({ msg: "Email already exists" });
     }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ msg: "Passwords do not match" });
+    }
+
+    const encryptedPassword = await bcrypt.hash(password, 12);
+    //const result = await User.create({ username, email, password: encryptedPassword });
+    let id = users.length + 1;
+
+    let result = {
+      _id: id.toString(),
+      username: username,
+      role: "user",
+      age: age,
+      bio: bio,
+      email: email,
+      totalPosts: 0,
+      password: encryptedPassword,
+    };
+    users.push(result);
+    const token = jwt.sign({ email: result.email, id: result._id }, "1234", {
+      expiresIn: "1h",
+    });
+
+    res.status(201).json({ result, token });
+  } catch (error) {
+    res.status(500).json({ msg: "Something went wrong" });
+  }
 };
 
 const updateUserProfile = async (req, res) => {
-    const { id: _id, userId } = req.params;
+  const { id: _id, userId } = req.params;
 
-    console.log(userId)
-    const { username, age, bio, email } = req.body;
+  console.log(userId);
+  const { username, age, bio, email } = req.body;
 
-    try {
-        const userIndex = users.findIndex(t => t._id === userId);
-        if (userIndex === -1) {
-            return res.status(400).json({ msg: "User does not exist" });
-        }
-
-        const updatedUser = { ...users[userIndex], username, age, bio, email};
-        users[userIndex] = updatedUser;
-
-        res.status(200).json({ result: updatedUser });
-
-    } catch (error) {
-        res.status(500).json({ msg: "Something went wrong" });
+  try {
+    const userIndex = users.findIndex((t) => t._id === userId);
+    if (userIndex === -1) {
+      return res.status(400).json({ msg: "User does not exist" });
     }
+
+    const updatedUser = { ...users[userIndex], username, age, bio, email };
+    users[userIndex] = updatedUser;
+
+    res.status(200).json({ result: updatedUser });
+  } catch (error) {
+    res.status(500).json({ msg: "Something went wrong" });
+  }
 };
 
 const deleteUser = async (req, res) => {
-    const { id: _id, userId } = req.params;
-    
-    try {
-        const userIndex = users.findIndex(t => t._id === userId);
-        if (userIndex === -1) {
-            return res.status(400).json({ msg: "User does not exist" });
-        }
+  const { id: _id, userId } = req.params;
 
-        users.splice(userIndex, 1);
-
-        res.status(200).json({ msg: "User deleted successfully" });
-
-    } catch (error) {
-        res.status(500).json({ msg: "Something went wrong" });
+  try {
+    const userIndex = users.findIndex((t) => t._id === userId);
+    if (userIndex === -1) {
+      return res.status(400).json({ msg: "User does not exist" });
     }
+
+    users.splice(userIndex, 1);
+
+    res.status(200).json({ msg: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: "Something went wrong" });
+  }
 };
 
-export {
-    login,
-    signup,
-    deleteUser,
-    updateUserProfile,
-    users
-};
+export { login, signup, deleteUser, updateUserProfile, users };

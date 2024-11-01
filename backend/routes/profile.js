@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { getProfile, getUserProfile, getAllProfiles } from "../controlers/profile.js";
+import {
+  getProfile,
+  getUserProfile,
+  getAllProfiles,
+} from "../controlers/profile.js";
 const router = Router();
-import authentication from '../midlewares/authentication.js'
-
-
+import authentication from "../midlewares/authentication.js";
 
 /**
  * @openapi

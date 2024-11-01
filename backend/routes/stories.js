@@ -1,7 +1,20 @@
 import { Router } from "express";
-import { getStories, getUserStories, createStory, updateStory, deleteStory, likeStory, getStoriesByTag, getAllTags, commentOnStory, deleteComment, deleteUserStories, deleteUserComments } from "../controlers/stories.js";
+import {
+  getStories,
+  getUserStories,
+  createStory,
+  updateStory,
+  deleteStory,
+  likeStory,
+  getStoriesByTag,
+  getAllTags,
+  commentOnStory,
+  deleteComment,
+  deleteUserStories,
+  deleteUserComments,
+} from "../controlers/stories.js";
 const router = Router();
-import authentication from '../midlewares/authentication.js'
+import authentication from "../midlewares/authentication.js";
 
 /**
  * @openapi
