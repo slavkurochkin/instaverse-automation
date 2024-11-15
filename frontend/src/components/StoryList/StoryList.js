@@ -3,6 +3,7 @@ import { Row, Col, Empty, Button, Dropdown, Space, Input, Spin } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import Story from '../Story';
 import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 
 const { Search } = Input;
 
@@ -229,3 +230,7 @@ export default function StoryList({ setSelectedId }) {
     </div>
   );
 }
+
+StoryList.propTypes = {
+  setSelectedId: PropTypes.func.isRequired,
+};

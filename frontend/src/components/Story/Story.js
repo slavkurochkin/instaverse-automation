@@ -30,6 +30,7 @@ import {
   deleteComment,
 } from '../../actions/stories'; // Import action for commenting
 import { FETCH_PROFILE } from '../../constants/actionTypes';
+import PropTypes from 'prop-types';
 
 const { Meta } = Card;
 const { Paragraph, Text } = Typography;
@@ -153,7 +154,7 @@ function Story({ story, setSelectedId }) {
   };
 
   const cardActions = [
-    <div style={styles.actions}>
+    <div key="like" style={styles.actions}>
       <Tooltip
         placement="top"
         title="Like"
@@ -166,7 +167,7 @@ function Story({ story, setSelectedId }) {
         &nbsp; {story.likes.length} &nbsp;
       </Tooltip>
     </div>,
-    <div>
+    <div key="comments">
       <Tooltip
         placement="top"
         color="blue"
@@ -197,10 +198,10 @@ function Story({ story, setSelectedId }) {
         />
       </Modal>
     </div>,
-    <Tooltip placement="top" title="Edit">
+    <Tooltip key="edit" placement="top" title="Edit">
       <EditOutlined onClick={() => setSelectedId(story._id)} />
     </Tooltip>,
-    <Tooltip placement="top" title="Delete" color="red">
+    <Tooltip key="delete" placement="top" title="Delete" color="red">
       <DeleteTwoTone twoToneColor="red" onClick={showModal} />
       <Modal
         title="Delete Post"
@@ -310,5 +311,30 @@ function Story({ story, setSelectedId }) {
     </Card>
   );
 }
+
+Story.propTypes = {
+  story: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    username: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
+    image: PropTypes.string.isRequired,
+    caption: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.string),
+    category: PropTypes.string,
+    device: PropTypes.string,
+    social: PropTypes.string,
+    postDate: PropTypes.string.isRequired,
+    likes: PropTypes.arrayOf(PropTypes.string),
+    comments: PropTypes.arrayOf(
+      PropTypes.shape({
+        commentId: PropTypes.string.isRequired,
+        username: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+        commentDate: PropTypes.string,
+      }),
+    ),
+  }).isRequired,
+  setSelectedId: PropTypes.func.isRequired,
+};
 
 export default Story;
