@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Space,
   Table,
@@ -7,7 +7,6 @@ import {
   Modal,
   Form,
   Input,
-  InputNumber,
   Card,
   message,
 } from 'antd';
@@ -16,7 +15,7 @@ import { getUserProfiles } from '../../actions/profile';
 import { updateUser, deleteUser } from '../../actions/authentication';
 import { deleteUserStories, deleteUserComments } from '../../actions/stories';
 
-import Highlighter from 'react-highlight-words';
+// import Highlighter from 'react-highlight-words';
 
 const initialData = [
   {
@@ -54,7 +53,7 @@ function Dashboard() {
     fetchUsersData();
   }, [dispatch]);
 
-  const handleEdit = (record, isAllUsersTable = false) => {
+  const handleEdit = (record) => {
     setEditingRecord(record);
     form.setFieldsValue(record);
     setIsModalVisible(true);
@@ -82,7 +81,7 @@ function Dashboard() {
         form.resetFields();
         message.success('Record updated successfully!');
       } catch (error) {
-        message.error('Failed to update record!');
+        message.error(`Failed to update record! Error: ${error.message}`);
       }
     });
   };
@@ -106,7 +105,7 @@ function Dashboard() {
       isAllUsersTable ? setAllUsersData(newData) : setData(newData);
       message.success('Record deleted successfully!');
     } catch (error) {
-      message.error('Failed to delete record!');
+      message.error(`Failed to delete record! Error: ${error.message}`);
     }
   };
 

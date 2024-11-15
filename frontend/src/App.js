@@ -10,7 +10,6 @@ import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 
 const { Footer } = Layout;
-console.log(process.env);
 const App = () => {
   return (
     <BrowserRouter>

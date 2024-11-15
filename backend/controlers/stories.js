@@ -299,11 +299,9 @@ const deleteUserStories = async (req, res) => {
     }
   }
 
-  res
-    .status(200)
-    .json({
-      message: "All stories associated with the user have been deleted",
-    });
+  res.status(200).json({
+    message: "All stories associated with the user have been deleted",
+  });
 };
 
 const deleteUserComments = async (req, res) => {
@@ -327,11 +325,9 @@ const deleteUserComments = async (req, res) => {
     return res.status(404).json({ message: "No comments found for this user" });
   }
 
-  res
-    .status(200)
-    .json({
-      message: `${commentsDeleted} comments associated with the user have been deleted`,
-    });
+  res.status(200).json({
+    message: `${commentsDeleted} comments associated with the user have been deleted`,
+  });
 };
 
 export {

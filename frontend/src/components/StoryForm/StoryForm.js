@@ -16,6 +16,7 @@ import styles from './styles';
 import { createStory, updateStory } from '../../actions/stories';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const { Title } = Typography;
 
@@ -31,6 +32,13 @@ function StoryForm({ selectedId, setSelectedId, page, handleClose }) {
   const story = useSelector((state) =>
     selectedId ? state.stories.find((story) => story._id === selectedId) : null,
   );
+
+  StoryForm.propTypes = {
+    selectedId: PropTypes.string, // Adjust type based on your data type (e.g., number, object, etc.)
+    setSelectedId: PropTypes.func.isRequired,
+    page: PropTypes.number, // Change to the correct type if it's not a number
+    handleClose: PropTypes.func.isRequired,
+  };
 
   useEffect(() => {
     if (story) {
