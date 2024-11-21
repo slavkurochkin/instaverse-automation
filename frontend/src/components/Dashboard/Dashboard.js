@@ -2,56 +2,157 @@ import React, { useState, useEffect } from 'react';
 import {
   Space,
   Table,
-  Tag,
   Button,
   Modal,
   Form,
   Input,
   Card,
   message,
+  Divider,
 } from 'antd';
 import { useDispatch } from 'react-redux';
 import { getUserProfiles } from '../../actions/profile';
 import { updateUser, deleteUser } from '../../actions/authentication';
-import { deleteUserStories, deleteUserComments } from '../../actions/stories';
+import {
+  getStories,
+  deleteUserStories,
+  deleteUserComments,
+} from '../../actions/stories';
+import { Pie, Line } from 'react-chartjs-2'; // Import Line chart
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+} from 'chart.js';
 
-// import Highlighter from 'react-highlight-words';
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+);
 
-const initialData = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: '123 Main St, New York',
-    tags: ['nature', 'portrait'],
-    totalPosts: 64,
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: '456 Elm St, London',
-    tags: ['sport', 'animals'],
-    totalPosts: 60,
-  },
-];
+const initialData = [];
 
 function Dashboard() {
   const [data, setData] = useState(initialData);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [allUsersData, setAllUsersData] = useState([]);
+  const [storiesData, setStoriesData] = useState([]);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
-  // Fetch user profiles from the backend
   useEffect(() => {
     const fetchUsersData = async () => {
       const profiles = await dispatch(getUserProfiles());
       setAllUsersData(profiles);
     };
     fetchUsersData();
+
+    const fetchStoriesData = async () => {
+      const stories = await dispatch(getStories());
+      console.log('Fetched stories data:', stories); // Add this to check
+      setStoriesData(stories);
+    };
+    fetchStoriesData();
   }, [dispatch]);
+
+  const calculateTotalPosts = () => {
+    const users = allUsersData.length ? allUsersData : data;
+    return users.reduce((sum, user) => sum + (user.totalPosts || 0), 0);
+  };
+
+  const calculateTotalUsers = () => allUsersData.length;
+
+  const getFavoriteStylesData = () => {
+    const styleCounts = allUsersData.reduce((acc, user) => {
+      const style = user.favorite_style || 'Unknown';
+      acc[style] = (acc[style] || 0) + 1;
+      return acc;
+    }, {});
+
+    const labels = Object.keys(styleCounts);
+    const values = Object.values(styleCounts);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Favorite Styles',
+          data: values,
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+          ],
+          hoverOffset: 4,
+        },
+      ],
+    };
+  };
+
+  const getPostsByMonthData = () => {
+    if (!storiesData || storiesData.length === 0) {
+      console.log('No stories data available.');
+      return { labels: [], datasets: [] }; // Return an empty chart if there are no stories
+    }
+
+    const monthCounts = storiesData.reduce((acc, story) => {
+      const postDate = new Date(story.postDate); // Ensure the date is being parsed correctly
+      console.log('Parsing postDate:', postDate); // Log to check if the date is valid
+
+      if (isNaN(postDate)) {
+        console.error('Invalid date:', story.postDate);
+        return acc;
+      }
+
+      const month = postDate.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
+      });
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    }, {});
+
+    // If no months are counted, return empty data
+    if (Object.keys(monthCounts).length === 0) {
+      console.log('No posts found for any month.');
+      return { labels: [], datasets: [] };
+    }
+
+    const sortedMonths = Object.keys(monthCounts).sort(
+      (a, b) => new Date(a) - new Date(b),
+    );
+    const values = sortedMonths.map((month) => monthCounts[month]);
+
+    console.log('Sorted months:', sortedMonths); // Log sorted months
+    console.log('Month counts:', values); // Log counts for each month
+
+    return {
+      labels: sortedMonths,
+      datasets: [
+        {
+          label: 'Posts by Month',
+          data: values,
+          borderColor: '#36A2EB',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          fill: true,
+        },
+      ],
+    };
+  };
 
   const handleEdit = (record) => {
     setEditingRecord(record);
@@ -103,6 +204,11 @@ function Dashboard() {
         : data.filter((item) => item.key !== key);
 
       isAllUsersTable ? setAllUsersData(newData) : setData(newData);
+
+      // Re-fetch stories data after deletion to update the line chart
+      const updatedStories = await dispatch(getStories());
+      setStoriesData(updatedStories); // Update stories data in the state
+
       message.success('Record deleted successfully!');
     } catch (error) {
       message.error(`Failed to delete record! Error: ${error.message}`);
@@ -115,47 +221,27 @@ function Dashboard() {
       <Button
         danger
         onClick={() => {
-          Modal.confirm({
-            title: 'Are you sure you want to delete this user?',
-            content: 'This will remove all user posts and comments',
-            onOk: () =>
-              handleDelete(
-                isAllUsersTable ? record._id : record.key,
-                isAllUsersTable,
-              ),
-          });
+          if (record.role !== 'admin') {
+            // Check if the user is not an admin
+            Modal.confirm({
+              title: 'Are you sure you want to delete this user?',
+              content: 'This will remove all user posts and comments',
+              okText: 'Delete', // Change 'OK' to 'Delete'
+              okType: 'danger', // Apply 'danger' type to make the button red
+              onOk: () =>
+                handleDelete(
+                  isAllUsersTable ? record._id : record.key,
+                  isAllUsersTable,
+                ),
+            });
+          }
         }}
+        disabled={record.role === 'admin'} // Disable the button if the role is 'admin'
       >
         Delete
       </Button>
     </Space>
   );
-
-  const columns = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Age', dataIndex: 'age', key: 'age' },
-    { title: 'Address', dataIndex: 'address', key: 'address' },
-    {
-      title: 'Tags',
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => (
-            <Tag color="blue" key={tag}>
-              {tag}
-            </Tag>
-          ))}
-        </>
-      ),
-    },
-    { title: 'Total Posts', dataIndex: 'totalPosts', key: 'totalPosts' },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => renderActions(record),
-    },
-  ];
 
   const usersTableColumns = [
     { title: 'Username', dataIndex: 'username', key: 'username' },
@@ -189,13 +275,53 @@ function Dashboard() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Card title="Dashboard">
-        <Table
-          columns={columns}
-          dataSource={data}
-          pagination={{ pageSize: 5 }}
-        />
-      </Card>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: 24 }}>
+        <Card title="Statistics" style={{ flex: 1 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '10px',
+            }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <p>Total Users</p>
+              <p
+                style={{
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  margin: 0,
+                }}
+              >
+                {calculateTotalUsers()}
+              </p>
+            </div>
+            <Divider
+              type="vertical"
+              style={{ height: '100%', margin: '0 10px' }}
+            />
+            <div style={{ textAlign: 'center' }}>
+              <p>Total Posts</p>
+              <p
+                style={{
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  margin: 0,
+                }}
+              >
+                {calculateTotalPosts()}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Favorite Styles Distribution" style={{ flex: 2 }}>
+          <Pie data={getFavoriteStylesData()} />
+        </Card>
+        <Card title="Posts by Month" style={{ flex: 3 }}>
+          <Line data={getPostsByMonthData()} />
+        </Card>
+      </div>
 
       <Modal
         title="Edit User"
