@@ -15,24 +15,22 @@ export default function Profile() {
   const location = useLocation(); // Get the location object
   const queryParams = new URLSearchParams(location.search);
   const userId = queryParams.get('userId'); // Extract the userId query param if it exists
-
+  const currentUser = user?.result?._id;
   console.log(`User ID from query params: ${userId}`); // Log userId for debugging
+  console.log(`User ID from localStorage: ${user?.result?._id}`); // Log userId for debugging
   const dispatch = useDispatch();
   const [id, setId] = useState(null); // Use userId if available, otherwise fallback to profile id
   const [userProfile, setUserProfile] = useState(null);
   // eslint-disable-next-line
   const [userStories, setUserStories] = useState(null);
 
-  useEffect(
-    (userId) => {
-      if (userId) {
-        setId(userId);
-      } else if (user?.result?._id) {
-        setId(user.result._id);
-      }
-    },
-    [user],
-  );
+  useEffect(() => {
+    if (userId) {
+      setId(userId);
+    } else if (user?.result?._id) {
+      setId(currentUser);
+    }
+  }, [userId, user, currentUser]);
 
   useEffect(() => {
     if (id) {

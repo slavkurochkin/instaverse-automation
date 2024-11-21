@@ -31,7 +31,15 @@ const login = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-  const { username, age, bio, email, password, confirmPassword } = req.body;
+  const {
+    username,
+    age,
+    bio,
+    favorite_style,
+    email,
+    password,
+    confirmPassword,
+  } = req.body;
 
   try {
     const oldUser = users.find((t) => t.email === email);
@@ -53,6 +61,7 @@ const signup = async (req, res) => {
       role: "user",
       age: age,
       bio: bio,
+      favorite_style: favorite_style,
       email: email,
       totalPosts: 0,
       password: encryptedPassword,
@@ -72,7 +81,7 @@ const updateUserProfile = async (req, res) => {
   const { id: _id, userId } = req.params;
 
   console.log(userId);
-  const { username, age, bio, email } = req.body;
+  const { username, age, bio, favorite_style, email } = req.body;
 
   try {
     const userIndex = users.findIndex((t) => t._id === userId);
@@ -80,7 +89,14 @@ const updateUserProfile = async (req, res) => {
       return res.status(400).json({ msg: "User does not exist" });
     }
 
-    const updatedUser = { ...users[userIndex], username, age, bio, email };
+    const updatedUser = {
+      ...users[userIndex],
+      username,
+      age,
+      bio,
+      favorite_style,
+      email,
+    };
     users[userIndex] = updatedUser;
 
     res.status(200).json({ result: updatedUser });
