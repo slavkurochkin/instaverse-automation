@@ -4,6 +4,7 @@
     "username": "Admin User",
     "role": "admin",
     "age": 37,
+    "gender": "male",
     "bio": "Hello, my name is Slav, and I like photogrphy",
     "favorite_style": "outdoor",
     "totalPosts": 1,
