@@ -9,6 +9,7 @@ import {
   Card,
   message,
   Divider,
+  Select,
 } from 'antd';
 import { useDispatch } from 'react-redux';
 import { getUserProfiles } from '../../actions/profile';
@@ -357,6 +358,22 @@ function Dashboard() {
             rules={[{ required: true, message: 'Please input the bio!' }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item
+            name="favorite_style"
+            rules={[
+              {
+                required: true,
+                message: 'Please select a category',
+              },
+            ]}
+          >
+            <Select placeholder="favorite style">
+              <Select.Option value="animals">Animals</Select.Option>
+              <Select.Option value="nature">Nature</Select.Option>
+              <Select.Option value="portrait">Portrait</Select.Option>
+              <Select.Option value="sport">Sport</Select.Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

@@ -8,6 +8,7 @@ import {
   Layout,
   Typography,
   DatePicker,
+  Select,
 } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -89,6 +90,22 @@ function AuthForm() {
                 ]}
               >
                 <TextArea prefix={<UserOutlined />} placeholder="bio" />
+              </Form.Item>
+              <Form.Item
+                name="favorite_style"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select a category',
+                  },
+                ]}
+              >
+                <Select placeholder="favorite style">
+                  <Select.Option value="animals">Animals</Select.Option>
+                  <Select.Option value="nature">Nature</Select.Option>
+                  <Select.Option value="portrait">Portrait</Select.Option>
+                  <Select.Option value="sport">Sport</Select.Option>
+                </Select>
               </Form.Item>
             </>
           )}
