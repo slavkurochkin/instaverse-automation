@@ -34,6 +34,7 @@ const signup = async (req, res) => {
   const {
     username,
     age,
+    gender,
     bio,
     favorite_style,
     email,
@@ -55,11 +56,31 @@ const signup = async (req, res) => {
     //const result = await User.create({ username, email, password: encryptedPassword });
     let id = users.length + 1;
 
+    const calculateAge = (birthDate) => {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDifference = today.getMonth() - birth.getMonth();
+
+      if (
+        monthDifference < 0 ||
+        (monthDifference === 0 && today.getDate() < birth.getDate())
+      ) {
+        age--;
+      }
+
+      return age;
+    };
+
+    const birthDate = req.body.age;
+    const age = calculateAge(birthDate);
+
     let result = {
       _id: id.toString(),
       username: username,
       role: "user",
       age: age,
+      gender: gender,
       bio: bio,
       favorite_style: favorite_style,
       email: email,
@@ -81,7 +102,7 @@ const updateUserProfile = async (req, res) => {
   const { id: _id, userId } = req.params;
 
   console.log(userId);
-  const { username, age, bio, favorite_style, email } = req.body;
+  const { username, age, gender, bio, favorite_style, email } = req.body;
 
   try {
     const userIndex = users.findIndex((t) => t._id === userId);
@@ -93,6 +114,7 @@ const updateUserProfile = async (req, res) => {
       ...users[userIndex],
       username,
       age,
+      gender,
       bio,
       favorite_style,
       email,

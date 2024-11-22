@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Bar } from 'react-chartjs-2';
+
 import {
   Space,
   Table,
@@ -29,6 +31,8 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement, // Add this
+  BarController, // Add this
 } from 'chart.js';
 
 ChartJS.register(
@@ -39,6 +43,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement, // Add this
+  BarController, // Add this
 );
 
 const initialData = [];
@@ -75,6 +81,7 @@ function Dashboard() {
   const calculateTotalUsers = () => allUsersData.length;
 
   const getFavoriteStylesData = () => {
+    const totalUsers = allUsersData.length;
     const styleCounts = allUsersData.reduce((acc, user) => {
       const style = user.favorite_style || 'Unknown';
       acc[style] = (acc[style] || 0) + 1;
@@ -82,13 +89,15 @@ function Dashboard() {
     }, {});
 
     const labels = Object.keys(styleCounts);
-    const values = Object.values(styleCounts);
+    const values = Object.values(styleCounts).map(
+      (count) => ((count / totalUsers) * 100).toFixed(0), // Calculate percentage
+    );
 
     return {
       labels,
       datasets: [
         {
-          label: 'Favorite Styles',
+          label: 'Favorite Styles (%)',
           data: values,
           backgroundColor: [
             '#FF6384',
@@ -247,7 +256,36 @@ function Dashboard() {
   const usersTableColumns = [
     { title: 'Username', dataIndex: 'username', key: 'username' },
     { title: 'Role', dataIndex: 'role', key: 'role' },
-    { title: 'Age', dataIndex: 'age', key: 'age' },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+      key: 'age',
+      filters: [
+        { text: '0-17', value: '0-17' },
+        { text: '18-34', value: '18-34' },
+        { text: '35-54', value: '35-54' },
+        { text: '55+', value: '55+' },
+      ],
+      onFilter: (value, record) => {
+        const age = record.age;
+        if (value === '0-17') return age <= 17;
+        if (value === '18-34') return age >= 18 && age <= 34;
+        if (value === '35-54') return age >= 35 && age <= 54;
+        if (value === '55+') return age >= 55;
+        return false;
+      },
+    },
+    {
+      title: 'Gender',
+      dataIndex: 'gender',
+      key: 'gender',
+      filters: [
+        { text: 'Male', value: 'male' },
+        { text: 'Female', value: 'female' },
+        { text: 'Other', value: 'Other' },
+      ],
+      onFilter: (value, record) => record.gender === value,
+    },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     {
       title: 'Favorite Style',
@@ -265,7 +303,8 @@ function Dashboard() {
       title: 'Total Posts',
       dataIndex: 'totalPosts',
       key: 'totalPosts',
-      render: (text) => text || 'N/A',
+      render: (text) => text || '0',
+      sorter: (a, b) => (a.totalPosts || 0) - (b.totalPosts || 0),
     },
     {
       title: 'Action',
@@ -323,7 +362,123 @@ function Dashboard() {
           <Line data={getPostsByMonthData()} />
         </Card>
       </div>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: 24 }}>
+        <Card title="User Age Groups" style={{ flex: 2 }}>
+          {allUsersData && allUsersData.length > 0 ? (
+            <Bar
+              data={{
+                labels: ['0-17', '18-34', '35-54', '55+'],
+                datasets: [
+                  {
+                    label: 'Users by Age Group',
+                    data: (() => {
+                      const ageGroups = {
+                        '0-17': 0,
+                        '18-34': 0,
+                        '35-54': 0,
+                        '55+': 0,
+                      };
 
+                      allUsersData.forEach((user) => {
+                        const age = user.age;
+                        if (age <= 17) ageGroups['0-17']++;
+                        else if (age <= 34) ageGroups['18-34']++;
+                        else if (age <= 54) ageGroups['35-54']++;
+                        else ageGroups['55+']++;
+                      });
+
+                      return Object.values(ageGroups);
+                    })(),
+                    backgroundColor: [
+                      '#FF6384',
+                      '#36A2EB',
+                      '#FFCE56',
+                      '#4BC0C0',
+                    ],
+                    borderWidth: 1,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (tooltipItem) =>
+                        `${tooltipItem.dataset.label}: ${tooltipItem.raw} users`,
+                    },
+                  },
+                },
+              }}
+              style={{ height: '100%' }} // Make the chart fill the card
+            />
+          ) : (
+            <p>No user data available</p>
+          )}
+        </Card>
+        <Card title="User Gender Distribution" style={{ flex: 2 }}>
+          {allUsersData && allUsersData.length > 0 ? (
+            <Bar
+              data={{
+                labels: ['Male', 'Female', 'Other'],
+                datasets: [
+                  {
+                    label: 'Users by Gender',
+                    data: (() => {
+                      const genderCounts = {
+                        male: 0,
+                        female: 0,
+                        Other: 0,
+                      };
+
+                      allUsersData.forEach((user) => {
+                        const gender = user.gender;
+                        if (genderCounts[gender] !== undefined) {
+                          genderCounts[gender]++;
+                        } else {
+                          genderCounts['Other']++;
+                        }
+                      });
+
+                      return Object.values(genderCounts);
+                    })(),
+                    backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
+                    borderWidth: 1,
+                  },
+                ],
+              }}
+              options={{
+                indexAxis: 'y', // Makes the bar chart horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (tooltipItem) =>
+                        `${tooltipItem.dataset.label}: ${tooltipItem.raw} users`,
+                    },
+                  },
+                },
+                scales: {
+                  x: {
+                    beginAtZero: true, // Ensure the x-axis starts at 0
+                  },
+                },
+              }}
+              style={{ height: '100%' }} // Make the chart fill the card
+            />
+          ) : (
+            <p>No user data available</p>
+          )}
+        </Card>
+      </div>
       <Modal
         title="Edit User"
         open={isModalVisible}
