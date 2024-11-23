@@ -322,7 +322,7 @@ Story.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     category: PropTypes.string,
     device: PropTypes.string,
-    social: PropTypes.string,
+    social: PropTypes.arrayOf(PropTypes.string),
     postDate: PropTypes.string.isRequired,
     likes: PropTypes.arrayOf(PropTypes.string),
     comments: PropTypes.arrayOf(

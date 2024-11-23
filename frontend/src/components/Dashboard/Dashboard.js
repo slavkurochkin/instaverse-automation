@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
+import Highlighter from 'react-highlight-words';
 
 import {
   Space,
@@ -13,6 +14,7 @@ import {
   Divider,
   Select,
 } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { getUserProfiles } from '../../actions/profile';
 import { updateUser, deleteUser } from '../../actions/authentication';
@@ -22,6 +24,7 @@ import {
   deleteUserComments,
 } from '../../actions/stories';
 import { Pie, Line } from 'react-chartjs-2'; // Import Line chart
+import { Filler } from 'chart.js';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -51,11 +54,16 @@ const initialData = [];
 
 function Dashboard() {
   const [data, setData] = useState(initialData);
+
+  ChartJS.register(Filler);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [allUsersData, setAllUsersData] = useState([]);
   const [storiesData, setStoriesData] = useState([]);
   const [form] = Form.useForm();
+  const searchInput = useRef(null);
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const [searchText, setSearchText] = useState('');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -225,6 +233,85 @@ function Dashboard() {
     }
   };
 
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters, confirm, dataIndex)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : '',
+    onFilterDropdownOpenChange: (open) => {
+      if (open) {
+        setTimeout(() => searchInput.current.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters, confirm) => {
+    clearFilters();
+    setSearchText('');
+    setSearchedColumn('');
+    confirm({ closeDropdown: false });
+  };
+
   const renderActions = (record, isAllUsersTable = false) => (
     <Space size="middle">
       <Button onClick={() => handleEdit(record, isAllUsersTable)}>Edit</Button>
@@ -254,7 +341,12 @@ function Dashboard() {
   );
 
   const usersTableColumns = [
-    { title: 'Username', dataIndex: 'username', key: 'username' },
+    {
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
+      ...getColumnSearchProps('username'),
+    },
     { title: 'Role', dataIndex: 'role', key: 'role' },
     {
       title: 'Age',
