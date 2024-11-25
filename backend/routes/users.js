@@ -65,6 +65,15 @@ router.post("/login", login);
  *               bio:
  *                 type: string
  *                 example: "Hey there!"
+ *               favorite_style:
+ *                 type: string
+ *                 example: "Sport"
+ *               age:
+ *                 type: number
+ *                 example: 25
+ *               gender:
+ *                 type: string
+ *                 example: "female"
  *               email:
  *                 type: string
  *                 example: "user@example.com"
