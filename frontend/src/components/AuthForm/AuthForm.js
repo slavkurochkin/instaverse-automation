@@ -81,6 +81,21 @@ function AuthForm() {
                 <DatePicker placeholder="date of birth" />
               </Form.Item>
               <Form.Item
+                name="gender"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select gender',
+                  },
+                ]}
+              >
+                <Select placeholder="gender">
+                  <Select.Option value="female">female</Select.Option>
+                  <Select.Option value="male">male</Select.Option>
+                  <Select.Option value="other">other</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
                 name="bio"
                 rules={[
                   {

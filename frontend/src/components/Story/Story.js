@@ -64,7 +64,6 @@ function Story({ story, setSelectedId }) {
   // Effect to update comments state when the story updates
   useEffect(() => {
     if (story && story.comments) {
-      console.log('Story comments:', story.comments); // Log comments for debugging
       setComments(story.comments); // Set initial comments from story prop
     }
   }, [story]); // Run the effect whenever story changes
@@ -137,7 +136,6 @@ function Story({ story, setSelectedId }) {
       (comment) => comment.commentId !== commentId,
     );
     setComments(updatedComments);
-    console.log('Comment ID to delete:', commentId);
     // Then, dispatch the action to delete the comment from the backend
     dispatch(deleteComment(story._id, commentId))
       .then(() => {
@@ -275,7 +273,11 @@ function Story({ story, setSelectedId }) {
         {story.category}, image taken on the {story.device}
       </Text>
       <br />
-      <Text type="secondary">find it on {story.social}</Text>
+      <Text type="secondary">
+        {Array.isArray(story.social)
+          ? `Find it on ${story.social.join(', ')}`
+          : `Find it on ${story.social}`}
+      </Text>
       <br />
       <Text type="secondary">{moment(story.postDate).fromNow()}</Text>
 
@@ -322,7 +324,10 @@ Story.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     category: PropTypes.string,
     device: PropTypes.string,
-    social: PropTypes.arrayOf(PropTypes.string),
+    social: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
     postDate: PropTypes.string.isRequired,
     likes: PropTypes.arrayOf(PropTypes.string),
     comments: PropTypes.arrayOf(
