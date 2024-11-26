@@ -29,7 +29,6 @@ export const getUserProfiles = () => async (dispatch) => {
     console.log(error);
   }
 };
-
 export const getUserStories = (userId) => async (dispatch) => {
   try {
     const { data } = await api.fetchUserStories(userId);

@@ -31,7 +31,11 @@ const Home = () => {
   return (
     <Layout>
       <Sider style={styles.sider} width={400}>
-        <StoryForm selectedId={selectedId} setSelectedId={setSelectedId} />
+        <StoryForm
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          handleClose={() => {}}
+        />
       </Sider>
       <Content style={styles.content}>
         <StoryList setSelectedId={setSelectedId} />

@@ -101,7 +101,6 @@ const signup = async (req, res) => {
 const updateUserProfile = async (req, res) => {
   const { id: _id, userId } = req.params;
 
-  console.log(userId);
   const { username, age, gender, bio, favorite_style, email } = req.body;
 
   try {

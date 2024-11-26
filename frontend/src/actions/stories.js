@@ -16,7 +16,7 @@ export const getStories = () => async (dispatch) => {
     dispatch({ type: FETCH_ALL_STORIES, payload: data });
     return data;
   } catch (error) {
-    console.log(error.message);
+    //console.log(error.message);
   }
 };
 

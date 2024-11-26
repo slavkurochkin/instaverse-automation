@@ -75,7 +75,6 @@ function Dashboard() {
 
     const fetchStoriesData = async () => {
       const stories = await dispatch(getStories());
-      console.log('Fetched stories data:', stories); // Add this to check
       setStoriesData(stories);
     };
     fetchStoriesData();
@@ -123,13 +122,11 @@ function Dashboard() {
 
   const getPostsByMonthData = () => {
     if (!storiesData || storiesData.length === 0) {
-      console.log('No stories data available.');
       return { labels: [], datasets: [] }; // Return an empty chart if there are no stories
     }
 
     const monthCounts = storiesData.reduce((acc, story) => {
       const postDate = new Date(story.postDate); // Ensure the date is being parsed correctly
-      console.log('Parsing postDate:', postDate); // Log to check if the date is valid
 
       if (isNaN(postDate)) {
         console.error('Invalid date:', story.postDate);
@@ -146,7 +143,6 @@ function Dashboard() {
 
     // If no months are counted, return empty data
     if (Object.keys(monthCounts).length === 0) {
-      console.log('No posts found for any month.');
       return { labels: [], datasets: [] };
     }
 
@@ -155,17 +151,14 @@ function Dashboard() {
     );
     const values = sortedMonths.map((month) => monthCounts[month]);
 
-    console.log('Sorted months:', sortedMonths); // Log sorted months
-    console.log('Month counts:', values); // Log counts for each month
-
     return {
       labels: sortedMonths,
       datasets: [
         {
           label: 'Posts by Month',
           data: values,
-          borderColor: '#36A2EB',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: '#37ebc1',
+          backgroundColor: 'rgba(20, 225, 201, 0.46)',
           fill: true,
         },
       ],

@@ -15,16 +15,13 @@ const getStories = async (req, res) => {
 const getUserStories = async (req, res) => {
   const { userId } = req.params; // userId should be passed as a string in the URL parameters
 
-  console.log("userId: ", userId);
   try {
     // Filter stories by comparing the string userId
     const userStories = stories.filter((story) => story.userId === userId);
 
     // If no stories found for the user, return a 404 status
     if (userStories.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No stories found for this user" });
+      return res.status(200).json([]);
     }
 
     // Return the user's stories
@@ -240,8 +237,6 @@ const commentOnStory = async (req, res) => {
 const deleteComment = async (req, res) => {
   const { id: _id, commentId } = req.params; // Extract story ID and comment ID from params
 
-  console.log("Delete request for comment: ", commentId);
-
   if (!req.userId) return res.json({ message: "Unauthenticated User" });
 
   // Find the specific story by ID
@@ -256,7 +251,7 @@ const deleteComment = async (req, res) => {
 
   // Find the comment by commentId
   const commentIndex = stories[storyIndex].comments.findIndex(
-    (c) => c.commentId === commentId,
+    (c) => c.commentId === commentId
   );
 
   // If the comment doesn't exist, return a 404
@@ -316,7 +311,7 @@ const deleteUserComments = async (req, res) => {
     // Filter out comments that belong to the user
     const initialCommentsLength = story.comments.length;
     story.comments = story.comments.filter(
-      (comment) => comment.userId !== userId,
+      (comment) => comment.userId !== userId
     );
     commentsDeleted += initialCommentsLength - story.comments.length;
   });

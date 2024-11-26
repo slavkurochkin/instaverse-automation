@@ -20,7 +20,12 @@ import PropTypes from 'prop-types';
 
 const { Title } = Typography;
 
-function StoryForm({ selectedId, setSelectedId, page, handleClose }) {
+function StoryForm({
+  selectedId,
+  setSelectedId,
+  page,
+  handleClose = () => {},
+}) {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const user = JSON.parse(localStorage.getItem('profile'));

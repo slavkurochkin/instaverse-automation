@@ -20,7 +20,7 @@ const getUserProfile = async (req, res) => {
       const { password, ...userWithoutPassword } = profile; // Remove password
       res.status(200).json(userWithoutPassword);
     } else {
-      res.status(404).json({ message: "Profile not found" });
+      res.status(200).json({ message: "Profile not found" });
     }
   } catch (error) {
     res.status(404).json({ message: error.message });

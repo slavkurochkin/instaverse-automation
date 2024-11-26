@@ -16,8 +16,6 @@ export default function Profile() {
   const queryParams = new URLSearchParams(location.search);
   const userId = queryParams.get('userId'); // Extract the userId query param if it exists
   const currentUser = user?.result?._id;
-  console.log(`User ID from query params: ${userId}`); // Log userId for debugging
-  console.log(`User ID from localStorage: ${user?.result?._id}`); // Log userId for debugging
   const dispatch = useDispatch();
   const [id, setId] = useState(null); // Use userId if available, otherwise fallback to profile id
   const [userProfile, setUserProfile] = useState(null);
@@ -46,8 +44,6 @@ export default function Profile() {
       fetchUserData();
     }
   }, [id, dispatch]);
-
-  console.log(`User profile: ${userProfile?.username}`); // Log user profile for debugging
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingBio, setIsEditingBio] = useState(false);
