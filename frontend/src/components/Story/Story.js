@@ -196,7 +196,7 @@ function Story({ story, setSelectedId }) {
         />
       </Modal>
     </div>,
-    <Tooltip key="edit" placement="top" title="Edit">
+    <Tooltip key="edit" placement="top" color="green" title="Edit">
       <EditOutlined onClick={() => setSelectedId(story._id)} />
     </Tooltip>,
     <Tooltip key="delete" placement="top" title="Delete" color="red">

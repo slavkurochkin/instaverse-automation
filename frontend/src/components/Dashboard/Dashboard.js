@@ -441,7 +441,23 @@ function Dashboard() {
         </Card>
 
         <Card title="Favorite Styles Distribution" style={{ flex: 2 }}>
-          <Pie data={getFavoriteStylesData()} />
+          <Pie
+            data={getFavoriteStylesData()}
+            options={{
+              plugins: {
+                tooltip: {
+                  enabled: true,
+                },
+                legend: {
+                  display: true,
+                },
+                hover: {
+                  mode: 'nearest',
+                  intersect: true,
+                },
+              },
+            }}
+          />
         </Card>
         <Card title="Posts by Month" style={{ flex: 3 }}>
           <Line data={getPostsByMonthData()} />
