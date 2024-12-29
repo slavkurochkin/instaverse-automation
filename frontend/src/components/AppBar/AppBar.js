@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   UserOutlined,
   ArrowRightOutlined,
-  TeamOutlined,
+  DashboardTwoTone,
   HomeOutlined,
 } from '@ant-design/icons';
 import { Layout, Image, Typography, Button, Dropdown } from 'antd';
@@ -86,7 +86,7 @@ export default function AppBar() {
   if (user?.result?.role === 'admin') {
     items.splice(2, 0, {
       key: '2',
-      icon: <TeamOutlined />,
+      icon: <DashboardTwoTone />,
       label: 'Dashboard',
       onClick: navigateToDashboard,
     });
