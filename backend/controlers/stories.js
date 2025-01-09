@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Story from "../models/storyContent.js";
 import stories from "../data/stories.json" assert { type: "json" };
-import { users } from "./users.js";
+import { users } from "./og_users.js";
 
 const getStories = async (req, res) => {
   try {

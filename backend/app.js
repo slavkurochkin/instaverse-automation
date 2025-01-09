@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import storyRoutes from "./routes/stories.js";
 import userRoutes from "./routes/users.js";
 import profileRoutes from "./routes/profile.js";
+import pool from "./db.js";
 
 const app = express();
 
@@ -40,9 +41,19 @@ const connectDB = async () => {
   }
 };
 
+app.get("/users", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 connectDB();
 
 mongoose.connection.on("open", () =>
-  console.log("Connection to database has been established successfully"),
+  console.log("Connection to database has been established successfully")
 );
 mongoose.connection.on("error", (err) => console.log(err));
