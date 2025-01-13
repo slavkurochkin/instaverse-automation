@@ -1,0 +1,52 @@
+{
+  "consumer": {
+    "name": "WebConsumer"
+  },
+  "interactions": [
+    {
+      "description": "a request to get user profiles",
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/profile/users"
+      },
+      "response": {
+        "body": [
+          {
+            "_id": "1",
+            "age": "37",
+            "bio": "Hello, my name is Slav, and I like photography",
+            "email": "admin@gmail.com",
+            "favorite_style": "outdoor",
+            "gender": 35,
+            "password": "$2a$12$6GVrudvnEIl8YOZglieh.Odlguv1eOYYY6eLqkc3MQyKYa1z1mBNu",
+            "role": "admin",
+            "totalPosts": 1,
+            "username": "Admin User"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "10.4.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.0",
+      "models": "1.0.4"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "InstaverseAPI"
+  }
+}
