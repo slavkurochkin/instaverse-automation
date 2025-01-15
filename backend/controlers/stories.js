@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Story from "../models/storyContent.js";
-import stories from "../data/stories.json" assert { type: "json" };
+import stories from "../data/stories.json" with { type: "json" };
 import { users } from "./users.js";
 
 const getStories = async (req, res) => {

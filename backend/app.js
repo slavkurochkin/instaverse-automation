@@ -43,6 +43,8 @@ const connectDB = async () => {
 connectDB();
 
 mongoose.connection.on("open", () =>
-  console.log("Connection to database has been established successfully"),
+  console.log("Connection to database has been established successfully")
 );
 mongoose.connection.on("error", (err) => console.log(err));
+
+export default app;
