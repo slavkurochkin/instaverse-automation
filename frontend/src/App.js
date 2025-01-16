@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
         </Routes>
         <Footer style={styles.footer}>
-          2024 instaverse, built by Slav Kurochkin
+          2025 instaverse, built by Slav Kurochkin
         </Footer>
       </Layout>
     </BrowserRouter>
