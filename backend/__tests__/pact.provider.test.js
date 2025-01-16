@@ -35,14 +35,13 @@ describe("Pact Provider Verification", () => {
     const pactVerifier = new Verifier({
       provider: "InstaverseAPI",
       providerBaseUrl: "http://localhost:4000",
-      pactUrls: [
-        _resolve(process.cwd(), "pacts/WebConsumer-InstaverseAPI.json"),
-      ],
+
       publishVerificationResult: true,
-      providerVersion: "1.0.0",
+      providerVersion: "1.0.6",
       stateHandlers: {
         "user profiles exist": async () => {
           console.log("Seeding data for state: user profiles exist");
+          console.log("Result:", output);
         },
         "user exists": () => ({
           user: eachLike({
@@ -55,6 +54,9 @@ describe("Pact Provider Verification", () => {
       },
     });
 
-    await pactVerifier.verifyProvider();
+    await pactVerifier.verifyProvider().then((output) => {
+      console.log("Pact Verification Complete!");
+      console.log("Result:", output);
+    });
   }, 30000); // Increase timeout for this specific test case as well
 });

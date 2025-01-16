@@ -117,6 +117,63 @@
         },
         "status": 200
       }
+    },
+    {
+      "description": "a request to a specific user ID",
+      "providerStates": [
+        {
+          "name": "Has a user with specific ID",
+          "params": {
+            "userId": 1
+          }
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/profile/users/1"
+      },
+      "response": {
+        "body": {
+          "email": "admin@gmail.com",
+          "name": "Admin User",
+          "userId": 1
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.userId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
     }
   ],
   "metadata": {

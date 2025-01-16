@@ -3,7 +3,7 @@ const path = require('path');
 const { PactV3, MatchersV3 } = require('@pact-foundation/pact');
 const axios = require('axios');
 
-const { like, eachLike } = MatchersV3;
+const { like, eachLike, integer, string } = MatchersV3;
 
 const provider = new PactV3({
   dir: path.resolve(process.cwd(), 'pacts'),
@@ -15,6 +15,12 @@ const provider = new PactV3({
 const getUserProfiles = async (baseURL) => {
   const api = axios.create({ baseURL });
   const response = await api.get('/profile/users');
+  return response.data;
+};
+
+const getSpecificUserProfile = async (baseURL, userId) => {
+  const api = axios.create({ baseURL });
+  const response = await api.get(`/profile/users/${userId}`);
   return response.data;
 };
 
@@ -62,6 +68,39 @@ describe('Instaverse API', () => {
           totalPosts: expect.any(Number),
           email: expect.any(String),
         });
+      });
+    });
+  });
+});
+
+describe('When a GET request is made to a specific user ID', () => {
+  test('it should return a specific user', async () => {
+    const testId = 1;
+    EXPECTED_BODY._id = testId;
+
+    await provider
+      .given('Has a user with specific ID', { userId: testId })
+      .uponReceiving('a request to a specific user ID')
+      .withRequest({
+        method: 'GET',
+        path: `/profile/users/${testId}`,
+        headers: { Accept: 'application/json' },
+      })
+      .willRespondWith({
+        status: 200,
+        body: {
+          userId: integer(testId),
+          name: string('Admin User'),
+          email: string('admin@gmail.com'),
+        },
+      });
+
+    await provider.executeTest(async (mockProvider) => {
+      const user = await getSpecificUserProfile(mockProvider.url, testId);
+      expect(user).toEqual({
+        userId: testId,
+        name: 'Admin User',
+        email: 'admin@gmail.com',
       });
     });
   });
