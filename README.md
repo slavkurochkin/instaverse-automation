@@ -2,6 +2,20 @@
 
 Instaverse Automation is a full-stack web project using React as the frontend and Express.js as the backend. The project includes linting and code formatting tools (ESLint and Prettier), Docker support for containerization, and OpenAPI for API documentation.
 
+## Application Demo
+
+Login, sorting and commenting
+
+![Application Demo](/assets/instaverse-1.gif)
+
+Dashboard
+
+![Application Demo](/assets/instaverse-2.gif)
+
+Adding new story and deleting it
+
+![Application Demo](/assets/instaverse-3.gif)
+
 ## Project Structure
 
 The project has the following structure:
@@ -84,19 +98,7 @@ OpenAPI documentation is available. Ensure the backend server is running and vis
 http://localhost:<backend-port>/api-docs
 ```
 
-## Application Demo
-
-Login, sorting and commenting
-
-![Application Demo](/assets/instaverse-1.gif)
-
-Dashboard
-
-![Application Demo](/assets/instaverse-2.gif)
-
-Adding new story and deleting it
-
-![Application Demo](/assets/instaverse-3.gif)
+![Documentation Demo](/assets/api-docs.gif)
 
 ## Contributing
 
