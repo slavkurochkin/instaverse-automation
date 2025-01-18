@@ -1,5 +1,6 @@
 .vscode
 .DS_Store
+.sonar
 /node_modules
 backend/.DS_Store
 backend/node_modules
@@ -7,3 +8,4 @@ backend/.env.*
 
 frontend/node_modules
 frontend/.env.*
+eslint-report.json
