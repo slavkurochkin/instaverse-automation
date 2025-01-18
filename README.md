@@ -76,8 +76,6 @@ Build and start the entire project using Docker Compose:
 docker-compose up --build
 ```
 
-# Project Name
-
 ## SonarQube Configuration
 
 This project includes a SonarQube setup that can be run locally for code quality analysis.
