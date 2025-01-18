@@ -76,6 +76,36 @@ Build and start the entire project using Docker Compose:
 docker-compose up --build
 ```
 
+# Project Name
+
+## SonarQube Configuration
+
+This project includes a SonarQube setup that can be run locally for code quality analysis.
+
+![Documentation Demo](/assets/sonarq.gif)
+
+### Running SonarQube Locally
+
+1. Ensure you have Docker installed and running on your machine.
+2. Use the following command to start SonarQube:
+   ```bash
+   docker-compose up -d
+   ```
+3. Access SonarQube UI at `http://localhost:9000`.
+4. Default credentials:
+   - Username: `admin`
+   - Password: `admin`
+
+### Running Analysis
+
+Run the following command to trigger a code analysis using SonarScanner:
+
+```bash
+sonar-scanner
+```
+
+Ensure your `sonar-project.properties` file is correctly configured in the root directory.
+
 ### Linting and Formatting
 
 Run ESLint on both frontend and backend:
