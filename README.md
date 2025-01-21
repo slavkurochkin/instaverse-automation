@@ -76,6 +76,16 @@ Build and start the entire project using Docker Compose:
 docker-compose up --build
 ```
 
+## API Documentation
+
+OpenAPI documentation is available. Ensure the backend server is running and visit:
+
+```
+http://localhost:<backend-port>/api-docs
+```
+
+![Documentation Demo](/assets/api-docs.gif)
+
 ## SonarQube Configuration
 
 This project includes a SonarQube setup that can be run locally for code quality analysis.
@@ -118,15 +128,71 @@ Format code using Prettier:
 npm run format
 ```
 
-## API Documentation
+## Contract Testing
 
-OpenAPI documentation is available. Ensure the backend server is running and visit:
+Contract testing is used to validate the interactions between the frontend and backend components of Instaverse. This ensures that both components adhere to the agreed-upon API contracts, reducing integration issues.
 
-```
-http://localhost:<backend-port>/api-docs
-```
+![Documentation Demo](/assets/contract-testing.gif)
 
-![Documentation Demo](/assets/api-docs.gif)
+### Frontend
+
+The frontend uses `jest` for contract testing and includes scripts for running tests and publishing Pacts to a Pact Broker.
+
+#### Scripts
+
+- **Run Contract Tests**:
+
+  ```bash
+  npm run test:contract
+  ```
+
+  Executes contract tests defined in `pact.test.js`.
+
+- **Publish Pacts**:
+  ```bash
+  npm run publish:pact
+  ```
+  Publishes the generated Pacts to the configured Pact Broker.
+
+#### Prerequisites
+
+- Set the following environment variables:
+  - `PACT_BROKER_BASE_URL`: The base URL of your Pact Broker.
+  - `PACT_BROKER_TOKEN`: Token for authentication with the Pact Broker.
+
+### Backend
+
+The backend uses `jest` with experimental VM modules for contract testing. Scripts are provided for running tests with and without additional experimental settings.
+
+#### Scripts
+
+- **Run All Tests**:
+
+  ```bash
+  npm test
+  ```
+
+  Executes all tests, including unit and integration tests.
+
+- **Run Contract Tests**:
+
+  ```bash
+  npm run test:contract
+  ```
+
+  Runs contract tests defined in `pact.provider.test.js`.
+
+- **Run Contract Tests with Experimental Flags**:
+  ```bash
+  npm run test:contract:exp
+  ```
+  Runs contract tests with additional experimental VM module settings.
+
+### Benefits
+
+- Ensures compatibility between frontend and backend.
+- Catches integration issues early.
+- Maintains API stability.
 
 ## Contributing
 

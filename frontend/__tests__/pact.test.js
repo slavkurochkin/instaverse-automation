@@ -75,7 +75,7 @@ describe('Instaverse API', () => {
 
 describe('When a GET request is made to a specific user ID', () => {
   test('it should return a specific user', async () => {
-    const testId = 1;
+    const testId = '1';
     EXPECTED_BODY._id = testId;
 
     await provider
@@ -89,8 +89,8 @@ describe('When a GET request is made to a specific user ID', () => {
       .willRespondWith({
         status: 200,
         body: {
-          userId: integer(testId),
-          name: string('Admin User'),
+          _id: like(testId),
+          username: string('Admin User'),
           email: string('admin@gmail.com'),
         },
       });
@@ -98,8 +98,8 @@ describe('When a GET request is made to a specific user ID', () => {
     await provider.executeTest(async (mockProvider) => {
       const user = await getSpecificUserProfile(mockProvider.url, testId);
       expect(user).toEqual({
-        userId: testId,
-        name: 'Admin User',
+        _id: testId,
+        username: 'Admin User',
         email: 'admin@gmail.com',
       });
     });
