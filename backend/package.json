@@ -8,7 +8,8 @@
     "start": "nodemon app.js",
     "start:local": "NODE_ENV=local nodemon app.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:contract": "jest --experimental-vm-modules --testPathPattern=pact.provider.test.js"
+    "test:contract": "jest --testPathPattern=pact.provider.test.js",
+    "test:contract:exp": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "author": "",
   "license": "ISC",

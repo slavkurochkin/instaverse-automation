@@ -124,7 +124,7 @@
         {
           "name": "Has a user with specific ID",
           "params": {
-            "userId": 1
+            "userId": "1"
           }
         }
       ],
@@ -137,15 +137,23 @@
       },
       "response": {
         "body": {
+          "_id": "1",
           "email": "admin@gmail.com",
-          "name": "Admin User",
-          "userId": 1
+          "username": "Admin User"
         },
         "headers": {
           "Content-Type": "application/json"
         },
         "matchingRules": {
           "body": {
+            "$._id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
             "$.email": {
               "combine": "AND",
               "matchers": [
@@ -154,19 +162,11 @@
                 }
               ]
             },
-            "$.name": {
+            "$.username": {
               "combine": "AND",
               "matchers": [
                 {
                   "match": "type"
-                }
-              ]
-            },
-            "$.userId": {
-              "combine": "AND",
-              "matchers": [
-                {
-                  "match": "integer"
                 }
               ]
             }

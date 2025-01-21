@@ -37,7 +37,7 @@ describe("Pact Provider Verification", () => {
       providerBaseUrl: "http://localhost:4000",
 
       publishVerificationResult: true,
-      providerVersion: "1.0.6",
+      providerVersion: "1.0.12",
       stateHandlers: {
         "user profiles exist": async () => {
           console.log("Seeding data for state: user profiles exist");
