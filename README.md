@@ -132,7 +132,7 @@ npm run format
 
 Contract testing is used to validate the interactions between the frontend and backend components of Instaverse. This ensures that both components adhere to the agreed-upon API contracts, reducing integration issues.
 
-![Documentation Demo](/assets/contract-testing.gif)
+![Contract Testing](/assets/contract-testing.gif)
 
 ### Frontend
 
@@ -193,6 +193,25 @@ The backend uses `jest` with experimental VM modules for contract testing. Scrip
 - Ensures compatibility between frontend and backend.
 - Catches integration issues early.
 - Maintains API stability.
+
+## Unit Testing and Coverage
+
+Unit tests are written using Jest to ensure code quality and correctness.\
+To run unit tests, use the following command:
+
+```bash
+npm test
+```
+
+To generate a test coverage report, run:
+
+```bash
+npm run test:coverage
+```
+
+This will create a detailed coverage report in the `coverage` directory. Open `coverage/lcov-report/index.html` in your browser to view the report.
+
+![Jest Unit Testing](/assets/test-coverage.gif)
 
 ## Contributing
 
