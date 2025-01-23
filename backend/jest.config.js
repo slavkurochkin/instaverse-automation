@@ -12,7 +12,10 @@ export default {
   coverageDirectory: "coverage",
   coverageReporters: ["html", "text"],
   collectCoverageFrom: [
-    "src/**/*.{js,jsx}",
+    "controllers/*.{js,jsx}",
+    "routes/*.{js,jsx}",
+    "midlewares/*.{js,jsx}",
+    "models/*.{js,jsx}",
     "!src/**/*.test.{js,jsx}",
     "!src/index.js",
     "!src/**/styles.js",
