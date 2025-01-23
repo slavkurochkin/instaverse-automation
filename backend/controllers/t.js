@@ -1,4 +1,4 @@
-import users from "../data/users.json" assert { type: "json" };
+import users from "../data/users.json" with { type: "json" };
 import stories from "../data/stories.json" with { type: "json" };
 
 /** 
