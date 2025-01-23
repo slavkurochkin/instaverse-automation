@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-// import User from "../models/user.js";
-import users from "../data/users.json" assert { type: "json" };
-// import user from "../models/user.js";
+import User from "../models/user.js";
+import users from "../data/users.json" with { type: "json" };
+import user from "../models/user.js";
 
 const login = async (req, res) => {
   const { email, password } = req.body;

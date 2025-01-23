@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import profiles from "../data/users.json";
+import profiles from "../data/users.json" with { type: "json" };
 
 const getProfile = async (req, res) => {
   try {

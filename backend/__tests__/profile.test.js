@@ -3,7 +3,7 @@ import {
   getUserProfile,
   getAllProfiles,
 } from "../controllers/profile";
-import profiles from "../data/users.json";
+import profiles from "../data/users.json" with { type: "json" };
 import httpMocks from "node-mocks-http";
 
 import { jest } from "@jest/globals";
