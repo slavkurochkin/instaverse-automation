@@ -1,5 +1,5 @@
 import users from "../data/users.json" assert { type: "json" };
-import stories from "../data/stories.json" assert { type: "json" };
+import stories from "../data/stories.json" with { type: "json" };
 
 /** 
 var result = users.find(t=>t.username ==='slavv');
