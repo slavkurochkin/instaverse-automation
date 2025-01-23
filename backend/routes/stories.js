@@ -12,7 +12,7 @@ import {
   deleteComment,
   deleteUserStories,
   deleteUserComments,
-} from "../controlers/stories.js";
+} from "../controllers/stories.js";
 const router = Router();
 import authentication from "../midlewares/authentication.js";
 

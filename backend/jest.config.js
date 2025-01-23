@@ -1,7 +1,20 @@
 export default {
-  transform: {}, // No transform needed for native ESM
-  testEnvironment: "node",
-  moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.mjs$": "$1",
+  setupFiles: ["./jest.setup.js"],
+  transform: {
+    "^.+\\.jsx?$": "babel-jest",
   },
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1", // Fix imports with file extensions
+  },
+  moduleFileExtensions: ["js", "jsx"],
+  testEnvironment: "node",
+  collectCoverage: true,
+  coverageDirectory: "coverage",
+  coverageReporters: ["html", "text"],
+  collectCoverageFrom: [
+    "src/**/*.{js,jsx}",
+    "!src/**/*.test.{js,jsx}",
+    "!src/index.js",
+    "!src/**/styles.js",
+  ],
 };

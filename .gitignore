@@ -5,6 +5,7 @@
 backend/.DS_Store
 backend/node_modules
 backend/.env.*
+backend/coverage
 
 frontend/node_modules
 frontend/.env.*

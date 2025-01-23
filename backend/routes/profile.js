@@ -3,7 +3,7 @@ import {
   getProfile,
   getUserProfile,
   getAllProfiles,
-} from "../controlers/profile.js";
+} from "../controllers/profile.js";
 const router = Router();
 import authentication from "../midlewares/authentication.js";
 
