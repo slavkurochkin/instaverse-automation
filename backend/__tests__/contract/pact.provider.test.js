@@ -7,7 +7,7 @@ import { Matchers } from "@pact-foundation/pact";
 
 const { like, eachLike } = Matchers;
 
-import app from "../app.js"; // Adjust the path to your Express app entry point
+import app from "../../app.js"; // Adjust the path to your Express app entry point
 const server = createServer(app);
 let serverInstance;
 
@@ -56,6 +56,35 @@ describe("Pact Provider Verification", () => {
 
     await pactVerifier.verifyProvider().then((output) => {
       console.log("Pact Verification Complete!");
+      console.log("Result:", output);
+    });
+  }, 30000); // Increase timeout for this specific test case as well
+});
+describe("Pact Provider Verification for specific user ID", () => {
+  it("should validate the provider against the consumer contract for user with ID 123", async () => {
+    const pactVerifier = new Verifier({
+      provider: "InstaverseAPI",
+      providerBaseUrl: "http://localhost:4000",
+
+      publishVerificationResult: true,
+      providerVersion: "1.0.12",
+      stateHandlers: {
+        "user with ID 123 exists": async () => {
+          console.log("Seeding data for state: user with ID 123 exists");
+          return {
+            user: {
+              id: "123",
+              name: "John Doe",
+              age: 37,
+              password: "123",
+            },
+          };
+        },
+      },
+    });
+
+    await pactVerifier.verifyProvider().then((output) => {
+      console.log("Pact Verification Complete for user with ID 123!");
       console.log("Result:", output);
     });
   }, 30000); // Increase timeout for this specific test case as well
