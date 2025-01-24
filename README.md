@@ -176,15 +176,9 @@ The backend uses `jest` with experimental VM modules for contract testing. Scrip
 
 - **Run Contract Tests**:
 
-  ```bash
-  npm run test:contract
-  ```
-
-  Runs contract tests defined in `pact.provider.test.js`.
-
 - **Run Contract Tests with Experimental Flags**:
   ```bash
-  npm run test:contract:exp
+  npm run test:contract
   ```
   Runs contract tests with additional experimental VM module settings.
 
@@ -200,7 +194,7 @@ Unit tests are written using Jest to ensure code quality and correctness.\
 To run unit tests, use the following command:
 
 ```bash
-npm test
+npm run test:unit
 ```
 
 To generate a test coverage report, run:

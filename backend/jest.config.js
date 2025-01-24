@@ -4,8 +4,9 @@ export default {
     "^.+\\.jsx?$": "babel-jest",
   },
   moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1", // Fix imports with file extensions
+    "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/__mocks__/fileMock.js",
   },
+  transform: {},
   moduleFileExtensions: ["js", "jsx"],
   testEnvironment: "node",
   collectCoverage: true,
