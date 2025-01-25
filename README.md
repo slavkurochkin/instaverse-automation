@@ -207,6 +207,95 @@ This will create a detailed coverage report in the `coverage` directory. Open `c
 
 ![Jest Unit Testing](/assets/test-coverage.gif)
 
+## Monitoring and Observability with Sentry
+
+We use [Sentry](https://sentry.io/) for real-time error tracking and monitoring across both the frontend (React) and backend (Express) of our application. Sentry helps us capture, report, and track errors, providing insights into issues as they occur in a production environment.
+
+### React Frontend
+
+The React frontend is configured to send error events to Sentry whenever JavaScript errors, unhandled promise rejections, or other critical issues occur. Sentry automatically captures unhandled exceptions and provides detailed error reports, including stack traces and context for debugging.
+
+#### Setup
+
+1. **Install Sentry SDK**:
+   In the frontend directory, install the Sentry SDK:
+
+   ```bash
+   npm install @sentry/react
+   ```
+
+2. **Initialize Sentry**:
+   In your `index.js` or `app.js` (or equivalent entry point), initialize Sentry:
+
+   ```javascript
+   import * as Sentry from "@sentry/react";
+   Sentry.init({ dsn: "YOUR_SENTRY_DSN" });
+   ```
+
+3. **Error Reporting**:
+   Sentry will automatically capture errors in React components. You can also manually capture errors or messages:
+   ```javascript
+   Sentry.captureException(new Error("Custom Error"));
+   ```
+
+### Express Backend
+
+The Express backend is configured to send uncaught errors and performance metrics to Sentry for monitoring. This allows you to capture errors at the application level and get insights into the performance of your backend APIs.
+
+#### Setup
+
+1. **Install Sentry SDK**:
+   In the backend directory, install the Sentry SDK:
+
+   ```bash
+   npm install @sentry/node
+   ```
+
+2. **Initialize Sentry**:
+   In your main `server.js` (or equivalent entry point), initialize Sentry:
+
+   ```javascript
+   const Sentry = require("@sentry/node");
+   Sentry.init({ dsn: "YOUR_SENTRY_DSN" });
+   ```
+
+3. **Capture Errors**:
+   Sentry automatically captures uncaught exceptions, unhandled promise rejections, and any errors thrown in routes. You can manually capture errors:
+
+   ```javascript
+   app.get("/some-endpoint", (req, res) => {
+     throw new Error("Custom Error");
+   });
+   ```
+
+4. **Error Handling Middleware**:
+   Ensure that Sentry's error handling middleware is placed after all route handlers:
+   ```javascript
+   app.use(Sentry.Handlers.errorHandler());
+   ```
+
+### Monitoring Features
+
+- **Error Alerts**: Sentry notifies you in real-time about new errors in both the frontend and backend.
+- **Performance Monitoring**: Sentry tracks API response times and helps identify performance bottlenecks.
+- **Contextual Data**: Every error is enriched with additional context such as browser information, HTTP request data, stack traces, and user context, which makes debugging easier.
+
+### Accessing the Sentry Dashboard
+
+1. Go to the [Sentry Dashboard](https://sentry.io/) and log in to your account.
+2. You'll be able to view all captured issues, trace performance, and monitor error trends over time.
+
+### Local Development
+
+- Ensure you are using the production build for both the frontend and backend to mimic the production environment locally.
+- If running locally in development mode, Sentry may behave differently; refer to the [Sentry documentation](https://docs.sentry.io/platforms/javascript/) for further setup options.
+
+### More Information
+
+For more details on configuring and customizing Sentry, refer to the official [Sentry documentation](https://docs.sentry.io/).
+
+![Jest Unit Testing](/assets/sentry-io.gif)
+
 ## Contributing
 
 1. Fork the repository.
