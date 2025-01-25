@@ -294,7 +294,7 @@ The Express backend is configured to send uncaught errors and performance metric
 
 For more details on configuring and customizing Sentry, refer to the official [Sentry documentation](https://docs.sentry.io/).
 
-![Jest Unit Testing](/assets/sentry-io.gif)
+![Monitoring](/assets/sentry.io.gif)
 
 ## Contributing
 
