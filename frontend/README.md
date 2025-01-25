@@ -31,6 +31,14 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `npm install -g serve`
+
+To run production build locally (frontend), install the server globally
+
+### `serve -s build`
+
+To serve frontend build locally after build version of frontend created
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
