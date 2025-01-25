@@ -5,16 +5,20 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "nodemon app.js && npm run sentry:sourcemaps",
     "start:local": "NODE_ENV=local nodemon app.js",
     "test": "node --experimental-vm-modules node_modules/jest/.bin/jest",
     "test:unit": "node --experimental-vm-modules node_modules/.bin/jest __tests__/unit",
-    "test:contract": "node --experimental-vm-modules node_modules/.bin/jest __tests__/contract"
+    "test:contract": "node --experimental-vm-modules node_modules/.bin/jest __tests__/contract",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project node-express ./ && sentry-cli sourcemaps upload --org instaverse --project node-express ./"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@pact-foundation/pact": "^10.4.1",
+    "@sentry/cli": "^2.41.1",
+    "@sentry/node": "^8.51.0",
+    "@sentry/profiling-node": "^8.51.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

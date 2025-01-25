@@ -5,12 +5,13 @@
   "scripts": {
     "start": "react-scripts start",
     "start:local": "NODE_ENV=local react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "jest",
     "eject": "react-scripts eject",
     "test:contract": "jest --testPathPattern=pact.test.js",
     "publish:pact": "pact-broker publish ./pacts --consumer-app-version=1.0.12 --tag=main --broker-base-url=$PACT_BROKER_BASE_URL --broker-token=$PACT_BROKER_TOKEN",
-    "test:cooverage": "npm test -- --coverage"
+    "test:cooverage": "npm test -- --coverage",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project javascript-react ./build && sentry-cli sourcemaps upload --org instaverse --project javascript-react ./build"
   },
   "eslintConfig": {
     "extends": [
@@ -22,6 +23,8 @@
     "@ant-design/icons": "^5.2.6",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@reduxjs/toolkit": "^2.0.1",
+    "@sentry/cli": "^2.41.1",
+    "@sentry/react": "^8.51.0",
     "antd": "^5.20.6",
     "axios": "^0.27.2",
     "chart.js": "^4.4.6",
