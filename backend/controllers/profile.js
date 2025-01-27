@@ -1,4 +1,4 @@
-// import mongoose from "mongoose";
+import mongoose from "mongoose";
 // import profiles from "../data/users.json" with { type: "json" };
 import { readFileSync } from "fs";
 const profiles = JSON.parse(
