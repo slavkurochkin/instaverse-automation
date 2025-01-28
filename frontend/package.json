@@ -9,7 +9,7 @@
     "test": "jest",
     "eject": "react-scripts eject",
     "test:contract": "jest --testPathPattern=pact.test.js",
-    "publish:pact": "pact-broker publish ./pacts --consumer-app-version=1.0.12 --tag=main --broker-base-url=$PACT_BROKER_BASE_URL --broker-token=$PACT_BROKER_TOKEN",
+    "publish:pact": "pact-broker publish ./pacts --consumer-app-version=1.0.13 --tag=main --broker-base-url=$PACT_BROKER_BASE_URL --broker-token=$PACT_BROKER_TOKEN",
     "test:cooverage": "npm test -- --coverage",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project javascript-react ./build && sentry-cli sourcemaps upload --org instaverse --project javascript-react ./build"
   },
