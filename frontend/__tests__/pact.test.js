@@ -91,6 +91,12 @@ describe('When a GET request is made to a specific user ID', () => {
         body: {
           _id: like(testId),
           username: string('Admin User'),
+          role: string('admin'),
+          age: integer(37),
+          gender: string('male'),
+          bio: string('Hello, my name is Slav, and I like photography'),
+          favorite_style: string('outdoor'),
+          totalPosts: integer(1),
           email: string('admin@gmail.com'),
         },
       });
@@ -100,6 +106,12 @@ describe('When a GET request is made to a specific user ID', () => {
       expect(user).toEqual({
         _id: testId,
         username: 'Admin User',
+        role: 'admin',
+        age: 37,
+        gender: 'male',
+        bio: 'Hello, my name is Slav, and I like photography',
+        favorite_style: 'outdoor',
+        totalPosts: 1,
         email: 'admin@gmail.com',
       });
     });

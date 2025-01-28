@@ -4,6 +4,7 @@ import { resolve as _resolve } from "path";
 import { Verifier } from "@pact-foundation/pact";
 import { jest } from "@jest/globals";
 import { Matchers } from "@pact-foundation/pact";
+import { getProfile } from "../../controllers/profile.js";
 
 const { like, eachLike } = Matchers;
 
@@ -60,32 +61,30 @@ describe("Pact Provider Verification", () => {
     });
   }, 30000); // Increase timeout for this specific test case as well
 });
+
 describe("Pact Provider Verification for specific user ID", () => {
-  it("should validate the provider against the consumer contract for user with ID 123", async () => {
+  it("should validate the provider against the consumer contract for user with ID 1", async () => {
     const pactVerifier = new Verifier({
       provider: "InstaverseAPI",
       providerBaseUrl: "http://localhost:4000",
 
       publishVerificationResult: true,
-      providerVersion: "1.0.12",
+      providerVersion: "1.0.13",
       stateHandlers: {
-        "user with ID 123 exists": async () => {
-          console.log("Seeding data for state: user with ID 123 exists");
-          return {
-            user: {
-              id: "123",
-              name: "John Doe",
-              age: 37,
-              password: "123",
-            },
-          };
+        "user with ID 1 exists": async (parameters) => {
+          getProfile._id = parameters.id;
+          return Promise.resolve({
+            description: `User with ID 
+            ${parameters.id} added!`,
+          });
         },
       },
     });
 
     await pactVerifier.verifyProvider().then((output) => {
-      console.log("Pact Verification Complete for user with ID 123!");
+      console.log("Pact Verification Complete for user with ID 1!");
       console.log("Result:", output);
+      serverInstance.close();
     });
-  }, 30000); // Increase timeout for this specific test case as well
+  }, 30000);
 });

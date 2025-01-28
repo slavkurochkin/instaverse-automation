@@ -138,7 +138,13 @@
       "response": {
         "body": {
           "_id": "1",
+          "age": 37,
+          "bio": "Hello, my name is Slav, and I like photography",
           "email": "admin@gmail.com",
+          "favorite_style": "outdoor",
+          "gender": "male",
+          "role": "admin",
+          "totalPosts": 1,
           "username": "Admin User"
         },
         "headers": {
@@ -154,11 +160,59 @@
                 }
               ]
             },
+            "$.age": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.bio": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
             "$.email": {
               "combine": "AND",
               "matchers": [
                 {
                   "match": "type"
+                }
+              ]
+            },
+            "$.favorite_style": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.gender": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.role": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.totalPosts": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
                 }
               ]
             },
