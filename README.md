@@ -207,6 +207,84 @@ This will create a detailed coverage report in the `coverage` directory. Open `c
 
 ![Jest Unit Testing](/assets/test-coverage.gif)
 
+## Pre-Commit Hooks Setup
+
+This project is configured with a pre-commit hook to streamline the testing process in a monorepo environment. The hook automatically determines which tests to run based on the changes staged for commit, ensuring efficiency and code quality.
+
+### How It Works
+
+- **Frontend changes**: Runs frontend unit tests using Jest.
+- **Backend changes**: Runs backend unit tests using Jest.
+- **Changes in both**: Runs all tests for both frontend and backend.
+
+### Configuration
+
+1. **Pre-commit Hook**
+   The pre-commit hook is defined using [Husky](https://typicode.github.io/husky/). The hook is configured to execute a custom script, `scripts/precommit.js`, which dynamically determines the scope of the tests to run based on the files that have been staged.
+
+   To ensure the hook is installed and works correctly:
+
+   ```bash
+   npx husky install
+   ```
+
+2. **Scripts**
+   Relevant scripts are defined in `package.json` to run the tests:
+
+   ```json
+   "scripts": {
+     "test:frontend": "node --experimental-vm-modules node_modules/jest/.bin/jest --config frontend/jest.config.js",
+     "test:unit:backend": "node --experimental-vm-modules node_modules/jest/.bin/jest --config backend/jest.config.js"
+   }
+   ```
+
+3. **Precommit.js Script**
+   The `scripts/precommit.js` file dynamically determines which tests to run based on the staged files:
+
+   ```javascript
+   import { execSync } from "child_process";
+
+   const stagedFiles = execSync("git diff --cached --name-only", {
+     encoding: "utf-8",
+   });
+
+   const runFrontendTests = stagedFiles.includes("frontend/");
+   const runBackendTests = stagedFiles.includes("backend/");
+
+   try {
+     if (runFrontendTests && runBackendTests) {
+       execSync("npm run test:frontend && npm run test:unit:backend", {
+         stdio: "inherit",
+       });
+     } else if (runFrontendTests) {
+       execSync("npm run test:frontend", { stdio: "inherit" });
+     } else if (runBackendTests) {
+       execSync("npm run test:unit:backend", { stdio: "inherit" });
+     } else {
+       console.log("No relevant changes for tests. Skipping...");
+     }
+   } catch (error) {
+     console.error("Tests failed:", error.message);
+     process.exit(1);
+   }
+   ```
+
+### Running the Hook
+
+To test the pre-commit hook manually:
+
+```bash
+git add .
+git commit -m "Test pre-commit hook"
+```
+
+### Notes
+
+- Make sure `precommit.js` is executable and defined in `package.json`.
+- Extend or customize the script to include additional test types or workflows as needed.
+
+By automating test execution with pre-commit hooks, you can enforce quality standards and improve developer productivity across the monorepo.
+
 ## Monitoring and Observability with Sentry
 
 We use [Sentry](https://sentry.io/) for real-time error tracking and monitoring across both the frontend (React) and backend (Express) of our application. Sentry helps us capture, report, and track errors, providing insights into issues as they occur in a production environment.
