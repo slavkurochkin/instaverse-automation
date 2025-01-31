@@ -9,6 +9,18 @@ import authentication from "../midlewares/authentication.js";
 
 /**
  * @openapi
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ * security:
+ *   - bearerAuth: []
+ */
+
+/**
+ * @openapi
  * /profile:
  *   get:
  *     summary: Get the profile of the authenticated user.
@@ -34,6 +46,7 @@ router.get("/", authentication, getProfile);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -48,6 +61,7 @@ router.get("/", authentication, getProfile);
  *               properties:
  *                 userId:
  *                   type: string
+ *                   example: "1"
  *                 name:
  *                   type: string
  *                 email:
@@ -80,6 +94,7 @@ router.get("/users/:userId", authentication, getUserProfile);
  *                 properties:
  *                   userId:
  *                     type: string
+ *                     example: "1"
  *                   name:
  *                     type: string
  *                   email:
