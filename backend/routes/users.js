@@ -25,15 +25,15 @@ const router = Router();
  *             properties:
  *               email:
  *                 type: string
- *                 example: "user@example.com"
+ *                 example: "admin@gmail.com"
  *               password:
  *                 type: string
- *                 example: "password123"
+ *                 example: "123"
  *     responses:
  *       200:
  *         description: Successfully logged in, returning JWT token.
  *         content:
- *           application/json:
+ *           application/json; charset=utf-8:
  *             schema:
  *               type: object
  *               properties:
@@ -103,6 +103,7 @@ router.post("/signup", signup);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         required: true
  *         schema:
  *           type: string
@@ -110,7 +111,7 @@ router.post("/signup", signup);
  *     responses:
  *       200:
  *         description: User deleted successfully.
- *       401:
+ *       400:
  *         description: Unauthorized - Bearer token required.
  *       404:
  *         description: User not found.
@@ -129,6 +130,7 @@ router.delete("/:userId", authentication, deleteUser);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         required: true
  *         schema:
  *           type: string
@@ -149,7 +151,7 @@ router.delete("/:userId", authentication, deleteUser);
  *     responses:
  *       200:
  *         description: User profile updated successfully.
- *       401:
+ *       400:
  *         description: Unauthorized - Bearer token required.
  *       404:
  *         description: User not found.

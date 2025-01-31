@@ -18,6 +18,18 @@ import authentication from "../midlewares/authentication.js";
 
 /**
  * @openapi
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ * security:
+ *   - bearerAuth: []
+ */
+
+/**
+ * @openapi
  * /stories:
  *   get:
  *     summary: Get all stories.
@@ -47,6 +59,7 @@ router.get("/", getStories);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -118,6 +131,7 @@ router.post("/", authentication, createStory);
  *     parameters:
  *       - in: path
  *         name: id
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -144,6 +158,7 @@ router.patch("/:id", authentication, updateStory);
  *     parameters:
  *       - in: path
  *         name: id
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -170,6 +185,7 @@ router.delete("/:id", authentication, deleteStory);
  *     parameters:
  *       - in: path
  *         name: id
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -196,6 +212,7 @@ router.patch("/:id/likeStory", authentication, likeStory);
  *     parameters:
  *       - in: path
  *         name: id
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -222,12 +239,14 @@ router.post("/:id/comment", authentication, commentOnStory);
  *     parameters:
  *       - in: path
  *         name: id
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
  *         description: The ID of the story.
  *       - in: path
  *         name: commentId
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -254,6 +273,7 @@ router.delete("/:id/comments/:commentId", authentication, deleteComment);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
@@ -280,6 +300,7 @@ router.delete("/user/:userId", authentication, deleteUserStories);
  *     parameters:
  *       - in: path
  *         name: userId
+ *         example: "1"
  *         schema:
  *           type: string
  *         required: true
