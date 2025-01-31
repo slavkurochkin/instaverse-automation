@@ -11,12 +11,12 @@ import authentication from "../midlewares/authentication.js";
  * @openapi
  * components:
  *   securitySchemes:
- *     bearerAuth:
+ *     BearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
  * security:
- *   - bearerAuth: []
+ *   - BearerAuth: []
  */
 
 /**
@@ -52,23 +52,43 @@ router.get("/", authentication, getProfile);
  *         required: true
  *         description: The ID of the user.
  *     responses:
- *       200:
+ *       '200':
  *         description: User profile retrieved successfully.
  *         content:
- *           application/json:
+ *           application/json; charset=utf-8:
  *             schema:
  *               type: object
  *               properties:
- *                 userId:
+ *                 _id:
  *                   type: string
  *                   example: "1"
- *                 name:
+ *                 username:
  *                   type: string
+ *                   example: "Admin User"
+ *                 role:
+ *                   type: string
+ *                   example: "admin"
+ *                 age:
+ *                   type: integer
+ *                   example: 37
+ *                 gender:
+ *                   type: string
+ *                   example: "male"
+ *                 bio:
+ *                   type: string
+ *                   example: "Hello, my name is Slav, and I like photography"
+ *                 favorite_style:
+ *                   type: string
+ *                   example: "outdoor"
+ *                 totalPosts:
+ *                   type: integer
+ *                   example: 1
  *                 email:
  *                   type: string
- *       404:
+ *                   example: "admin@gmail.com"
+ *       '400':
  *         description: User not found.
- *       401:
+ *       '401':
  *         description: Unauthorized access.
  */
 router.get("/users/:userId", authentication, getUserProfile);

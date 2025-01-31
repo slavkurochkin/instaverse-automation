@@ -14,7 +14,7 @@ const getProfile = async (req, res) => {
     }
     res.status(200).json(profile);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -30,7 +30,7 @@ const getUserProfile = async (req, res) => {
       res.status(200).json({ message: "Profile not found" });
     }
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -42,7 +42,7 @@ const getAllProfiles = async (_req, res) => {
     });
     res.status(200).json(profilesWithoutPasswords);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 

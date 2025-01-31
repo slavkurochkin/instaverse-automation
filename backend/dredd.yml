@@ -1,6 +1,6 @@
 color: true
 dry-run: false
-hookfiles: dredd-hooks.js
+hookfiles: ./dredd-hooks.js
 language: nodejs
 require: null
 server: npm start

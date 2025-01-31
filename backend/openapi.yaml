@@ -1,0 +1,487 @@
+openapi: 3.0.0
+info:
+  title: Express API
+  version: 1.0.0
+  description: Automatically generated OpenAPI documentation
+servers:
+  - url: http://localhost:5001
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '123'
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+    UserInput:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  security:
+    '0':
+      BearerAuth: []
+  /profile:
+    get:
+      summary: Get the profile of the authenticated user.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully.
+  /profile/users/{userId}:
+    get:
+      summary: Get the profile of a specific user by userId.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User profile retrieved successfully.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: '1'
+                  username:
+                    type: string
+                    example: Admin User
+                  role:
+                    type: string
+                    example: admin
+                  age:
+                    type: integer
+                    example: 37
+                  gender:
+                    type: string
+                    example: male
+                  bio:
+                    type: string
+                    example: Hello, my name is Slav, and I like photography
+                  favorite_style:
+                    type: string
+                    example: outdoor
+                  totalPosts:
+                    type: integer
+                    example: 1
+                  email:
+                    type: string
+                    example: admin@gmail.com
+        '400':
+          description: User not found.
+        '401':
+          description: Unauthorized access.
+  /profile/users:
+    get:
+      summary: Get profiles of all users.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of user profiles retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                      example: '1'
+                    name:
+                      type: string
+                    email:
+                      type: string
+        '401':
+          description: Unauthorized access.
+  /stories:
+    get:
+      summary: Get all stories.
+      tags:
+        - Stories
+      responses:
+        '200':
+          description: List of all stories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error.
+    post:
+      summary: Create a new story.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Story created successfully.
+        '401':
+          description: Unauthorized access.
+  /stories/user/{userId}:
+    get:
+      summary: Get all stories of a specific user.
+      tags:
+        - Stories
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User's stories retrieved successfully.
+        '404':
+          description: User or stories not found.
+    delete:
+      summary: Delete all stories of a specific user by userId.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User's stories deleted successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: User or stories not found.
+  /stories/tags:
+    get:
+      summary: Get stories filtered by tag.
+      tags:
+        - Stories
+      responses:
+        '200':
+          description: Stories retrieved successfully.
+        '400':
+          description: Invalid tag provided.
+  /stories/alltags:
+    get:
+      summary: Get all unique tags.
+      tags:
+        - Stories
+      responses:
+        '200':
+          description: List of all tags retrieved successfully.
+        '500':
+          description: Server error.
+  /stories/{id}:
+    patch:
+      summary: Update a specific story by ID.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the story to update.
+      responses:
+        '200':
+          description: Story updated successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: Story not found.
+    delete:
+      summary: Delete a specific story by ID.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the story to delete.
+      responses:
+        '200':
+          description: Story deleted successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: Story not found.
+  /stories/{id}/likeStory:
+    patch:
+      summary: Like or unlike a specific story by ID.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the story to like.
+      responses:
+        '200':
+          description: Story liked/unliked successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: Story not found.
+  /stories/{id}/comment:
+    post:
+      summary: Add a comment to a specific story by ID.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the story to comment on.
+      responses:
+        '201':
+          description: Comment added successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: Story not found.
+  /stories/{id}/comments/{commentId}:
+    delete:
+      summary: Delete a specific comment on a story by comment ID.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the story.
+        - in: path
+          name: commentId
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the comment to delete.
+      responses:
+        '200':
+          description: Comment deleted successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: Story or comment not found.
+  /stories/comments/user/{userId}:
+    delete:
+      summary: Delete all comments of a specific user by userId.
+      tags:
+        - Stories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          schema:
+            type: string
+          required: true
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User's comments deleted successfully.
+        '401':
+          description: Unauthorized access.
+        '404':
+          description: User or comments not found.
+  /user/login:
+    post:
+      summary: Login user and return a token.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@gmail.com
+                password:
+                  type: string
+                  example: '123'
+      responses:
+        '200':
+          description: Successfully logged in, returning JWT token.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for user authentication.
+        '401':
+          description: Invalid credentials.
+  /user/signup:
+    post:
+      summary: Register a new user.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: John Doe
+                bio:
+                  type: string
+                  example: Hey there!
+                favorite_style:
+                  type: string
+                  example: Sport
+                age:
+                  type: number
+                  example: 25
+                gender:
+                  type: string
+                  example: female
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+                confirmPassword:
+                  type: string
+                  example: password123
+      responses:
+        '201':
+          description: User created successfully.
+        '400':
+          description: User could not be created due to invalid input.
+  /user/{userId}:
+    delete:
+      summary: Delete a user by ID.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          required: true
+          schema:
+            type: string
+          description: ID of the user to delete.
+      responses:
+        '200':
+          description: User deleted successfully.
+        '400':
+          description: Unauthorized - Bearer token required.
+        '404':
+          description: User not found.
+    patch:
+      summary: Update user profile information by ID.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          example: '1'
+          required: true
+          schema:
+            type: string
+          description: ID of the user to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Jane Doe
+                email:
+                  type: string
+                  example: jane@example.com
+      responses:
+        '200':
+          description: User profile updated successfully.
+        '400':
+          description: Unauthorized - Bearer token required.
+        '404':
+          description: User not found.
+tags: []

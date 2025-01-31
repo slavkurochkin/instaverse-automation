@@ -20,12 +20,12 @@ import authentication from "../midlewares/authentication.js";
  * @openapi
  * components:
  *   securitySchemes:
- *     bearerAuth:
+ *     BearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
  * security:
- *   - bearerAuth: []
+ *   - BearerAuth: []
  */
 
 /**
