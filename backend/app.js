@@ -10,6 +10,17 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+
+dotenv.config();
+
+import pool from "./db.js";
+
+console.log("DB_ENABLED:", process.env.DB_ENABLED);
+// Load appropriate database file based on DB_ENABLED
+const db = await (process.env.DB_ENABLED === "true"
+  ? import("./db/dbEnabled.js")
+  : import("./db/dbDisabled.js"));
+
 import storyRoutes from "./routes/stories.js";
 import userRoutes from "./routes/users.js";
 import profileRoutes from "./routes/profile.js";
@@ -25,6 +36,20 @@ app.use(function onError(err, req, res, next) {
   // and optionally displayed to the user for support.
   res.statusCode = 500;
   res.end(res.sentry + "\n");
+});
+
+// Middleware to test DB connection
+app.get("/test-db", async (req, res) => {
+  console.log("DB_ENABLED:", process.env.DB_ENABLED);
+
+  try {
+    const result = await db.testConnection();
+    res.send({ message: "Database connection success", result });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ error: "Database connection failed", details: error.message });
+  }
 });
 
 // Route to Swagger UI
