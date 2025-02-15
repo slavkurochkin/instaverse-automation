@@ -2,7 +2,7 @@ import {
   getProfile,
   getUserProfile,
   getAllProfiles,
-} from "../../controllers/profile";
+} from "../../controllers/no-db/profile";
 // import profiles from "../../data/users.json" with { type: "json" };
 import { readFileSync } from "fs";
 const profiles = JSON.parse(

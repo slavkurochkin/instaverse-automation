@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 // import profiles from "../data/users.json" with { type: "json" };
 import { readFileSync } from "fs";
 const profiles = JSON.parse(
-  readFileSync(new URL("../data/users.json", import.meta.url))
+  readFileSync(new URL("../../data/users.json", import.meta.url))
 );
 
 const getProfile = async (req, res) => {

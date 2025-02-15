@@ -1,5 +1,14 @@
 import { Router } from "express";
-import {
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+const db =
+  process.env.DB_ENABLED === "true"
+    ? await import("../controllers/db/stories.js")
+    : await import("../controllers/no-db/stories.js");
+
+const {
   getStories,
   getUserStories,
   createStory,
@@ -12,7 +21,8 @@ import {
   deleteComment,
   deleteUserStories,
   deleteUserComments,
-} from "../controllers/stories.js";
+} = db;
+
 const router = Router();
 import authentication from "../midlewares/authentication.js";
 

@@ -1,10 +1,15 @@
 import { Router } from "express";
-import {
-  login,
-  signup,
-  deleteUser,
-  updateUserProfile,
-} from "../controllers/users.js";
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+const db =
+  process.env.DB_ENABLED === "true"
+    ? await import("../controllers/db/users.js")
+    : await import("../controllers/no-db/users.js");
+
+const { login, signup, deleteUser, updateUserProfile } = db;
+
 import authentication from "../midlewares/authentication.js";
 
 const router = Router();

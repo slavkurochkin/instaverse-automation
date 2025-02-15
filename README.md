@@ -1,6 +1,6 @@
 # Instaverse Automation
 
-Instaverse Automation is a full-stack web project using React as the frontend and Express.js as the backend. The project includes linting and code formatting tools (ESLint and Prettier), Docker support for containerization, and OpenAPI for API documentation.
+Instaverse Automation is a full-stack web project using React as the frontend, Express.js as the backend and PostgreSQL as Database. The project includes linting and code formatting tools (ESLint and Prettier), Docker support for containerization, and OpenAPI for API documentation.
 
 ## Application Demo
 
@@ -33,9 +33,13 @@ instaverse-automation/
 
 - **Frontend:** Built with React.
 - **Backend:** Built with Express.js.
+- **Database:** PostgreSQL.
 - **Linting & Formatting:** Configured with ESLint and Prettier.
+- **Security Scanner:** SonarQube
 - **Docker Support:** Docker and Docker Compose configured for containerization.
 - **OpenAPI:** API documentation using OpenAPI standard.
+- **Contract Testing:** Pactflow
+- **Unit Testing:** Jest
 
 ## Getting Started
 
@@ -67,6 +71,126 @@ Run frontend and backend separately if needed:
 npm run start:frontend
 npm run start:backend
 ```
+
+# Database Setup
+
+## Overview
+
+This document provides the schema and setup instructions for the database used in the project. It covers table structures, relationships, and key queries related to managing users, posts, and associated data.
+
+## Database Schema
+
+![Database schema](/assets/db-diagram.png)
+
+### **Users Table**
+
+Stores user information, including total posts.
+
+```sql
+CREATE TABLE users (
+    _id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    age TIMESTAMP,
+    gender VARCHAR(10),
+    bio TEXT,
+    favorite_style VARCHAR(50),
+    total_posts INT DEFAULT 0 CHECK (total_posts >= 0),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+```
+
+### **Posts Table**
+
+Stores posts made by users.
+
+```sql
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    caption TEXT NOT NULL,
+    category TEXT NOT NULL,
+    device TEXT NOT NULL,
+    username TEXT NOT NULL,
+    user_id INT NOT NULL,
+    image TEXT NOT NULL,  -- Storing base64 string
+    post_date TIMESTAMP NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(_id) ON DELETE CASCADE
+);
+```
+
+### **Post Tags Table**
+
+Stores tags associated with posts.
+
+```sql
+CREATE TABLE post_tags (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL,
+    tag TEXT NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+```
+
+### **Post Social Table**
+
+Stores social platforms where a post is shared.
+
+```sql
+CREATE TABLE post_social (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL,
+    platform TEXT NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+```
+
+### **Post Likes Table**
+
+```sql
+CREATE TABLE post_likes (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+```
+
+### **Comments Table**
+
+Stores comments on posts.
+
+```sql
+CREATE TABLE post_comments (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL,
+    comment_id TEXT NOT NULL,
+    text TEXT NOT NULL,
+    user_id INT NOT NULL,
+    username TEXT NOT NULL,
+    comment_date TIMESTAMP NOT NULL,
+    seen_by_story_owner BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+```
+
+## Setup Instructions
+
+1. Install PostgreSQL and create a database.
+2. Run the schema creation queries.
+3. Ensure proper indexing for faster queries.
+4. Use transactions when inserting multiple related records.
+5. Add `.env.local` in backend project
+6. Set `DB_ENABLED = true`, if `DB_ENABLED` set to `false` it will use mocked db (json)
+7. Start backend `npm run start:local`
+
+## Future Enhancements
+
+- Add soft deletes for posts and comments.
+- Implement indexing for faster lookups on `user_id` and `post_id`.
+- Introduce triggers to update `total_posts` automatically.
+
+---
 
 ### Docker Setup
 
