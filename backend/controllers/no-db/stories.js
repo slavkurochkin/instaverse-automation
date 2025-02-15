@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Story from "../models/storyContent.js";
+import Story from "../../models/storyContent.js";
 // import stories from "../data/stories.json" with { type: "json" };
 import { readFileSync } from "fs";
 const stories = JSON.parse(
-  readFileSync(new URL("../data/stories.json", import.meta.url))
+  readFileSync(new URL("../../data/stories.json", import.meta.url))
 );
 import { users } from "./users.js";
 
@@ -73,7 +73,7 @@ const createStory = async (req, res) => {
   const body = req.body;
   let uniqueId =
     Date.now().toString(36) + Math.random().toString(36).substring(2);
-
+  console.log(req.userId);
   const newStory = {
     ...body,
     _id: uniqueId,
@@ -100,6 +100,7 @@ const createStory = async (req, res) => {
     stories.push(newStory);
 
     // Increment totalPosts for the user
+    console.log(req.userId);
     const user = users.find((u) => u._id === req.userId);
     if (user) {
       user.totalPosts = (user.totalPosts || 0) + 1;

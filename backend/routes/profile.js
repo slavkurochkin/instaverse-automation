@@ -1,9 +1,15 @@
 import { Router } from "express";
-import {
-  getProfile,
-  getUserProfile,
-  getAllProfiles,
-} from "../controllers/profile.js";
+import dotenv from "dotenv";
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+const db =
+  process.env.DB_ENABLED === "true"
+    ? await import("../controllers/db/profile.js")
+    : await import("../controllers/no-db/profile.js");
+
+const { getProfile, getUserProfile, getAllProfiles } = db;
+
 const router = Router();
 import authentication from "../midlewares/authentication.js";
 

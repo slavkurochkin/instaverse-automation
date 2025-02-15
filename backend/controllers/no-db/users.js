@@ -1,13 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-import User from "../models/user.js";
+import User from "../../models/user.js";
 // import users from "../data/users.json" with { type: "json" };
 import { readFileSync } from "fs";
 const users = JSON.parse(
-  readFileSync(new URL("../data/users.json", import.meta.url))
+  readFileSync(new URL("../../data/users.json", import.meta.url))
 );
-import user from "../models/user.js";
+import user from "../../models/user.js";
 
 const login = async (req, res) => {
   const { email, password } = req.body;
