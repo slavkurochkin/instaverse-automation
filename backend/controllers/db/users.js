@@ -34,7 +34,6 @@ const login = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-  console.log(req.body);
   const {
     username,
     age,
@@ -115,7 +114,6 @@ const updateUserProfile = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  console.log(req.params);
   const { userId } = req.params;
 
   try {

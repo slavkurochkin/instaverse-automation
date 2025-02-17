@@ -7,6 +7,7 @@
     "start:local": "NODE_ENV=local react-scripts start",
     "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "jest",
+    "test:unit": "jest __tests__/unit",
     "eject": "react-scripts eject",
     "test:contract": "jest --testPathPattern=pact.test.js",
     "publish:pact": "pact-broker publish ./pacts --consumer-app-version=1.0.13 --tag=main --broker-base-url=$PACT_BROKER_BASE_URL --broker-token=$PACT_BROKER_TOKEN",
@@ -51,6 +52,7 @@
     "@babel/preset-react": "^7.26.3",
     "@pact-foundation/pact": "^13.2.0",
     "@pact-foundation/pact-web": "^9.18.1",
+    "@playwright/test": "^1.50.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^20.8.4",
@@ -60,6 +62,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "jest": "^27.5.1",
+    "playwright": "^1.50.1",
     "redux-mock-store": "^1.5.5",
     "typescript": "^4.9.5"
   },

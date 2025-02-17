@@ -9,7 +9,7 @@
     "start:frontend": "npm --prefix ./frontend start",
     "start:backend": "npm --prefix ./backend start",
     "test:unit:backend": "npm --prefix ./backend run test:unit",
-    "test:unit:frontend": "npm --prefix ./frontend run test",
+    "test:unit:frontend": "npm --prefix ./frontend run test:unit",
     "install:root": "npm install",
     "install:all": "npm install && npm install --prefix ./frontend && npm install --prefix ./backend",
     "lint:frontend": "eslint frontend",

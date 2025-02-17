@@ -252,6 +252,44 @@ Format code using Prettier:
 npm run format
 ```
 
+## E2E Testing with Playwright
+
+Runs the end-to-end tests.
+
+```
+npx playwright test
+```
+
+Starts the interactive UI mode.
+
+```
+npx playwright test --ui
+```
+
+Runs the tests only on Desktop Chrome.
+
+```
+npx playwright test --project=chromium
+```
+
+Runs the tests in a specific file.
+
+```
+npx playwright test example
+```
+
+Runs the tests in debug mode.
+
+```
+npx playwright test --debug
+```
+
+Auto generate tests with Codegen.
+
+```
+npx playwright codegen
+```
+
 ## Contract Testing
 
 Contract testing is used to validate the interactions between the frontend and backend components of Instaverse. This ensures that both components adhere to the agreed-upon API contracts, reducing integration issues.
