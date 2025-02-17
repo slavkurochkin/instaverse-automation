@@ -252,6 +252,12 @@ Format code using Prettier:
 npm run format
 ```
 
+# Testing
+
+## Test Data Seeding
+
+![Test Data Seeding](/assets/test-data-seeding.gif)
+
 ## E2E Testing with Playwright
 
 Runs the end-to-end tests.
