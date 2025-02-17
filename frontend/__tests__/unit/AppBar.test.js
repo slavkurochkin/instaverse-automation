@@ -7,7 +7,7 @@ import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import AppBar from '../src/components/AppBar/AppBar';
+import AppBar from '../../src/components/AppBar/AppBar';
 
 const mockStore = configureStore([]);
 
