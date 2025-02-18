@@ -1,4 +1,5 @@
 import pool from "../../db.js";
+import amqp from "amqplib";
 
 export const getStories = async (req, res) => {
   try {
@@ -340,11 +341,14 @@ export const likeStory = async (req, res) => {
       [id, userId]
     );
 
+    let isLiked = false;
+
     if (existingLike.rows.length === 0) {
       await pool.query(
         "INSERT INTO post_likes (post_id, user_id) VALUES ($1, $2)",
         [id, userId]
       );
+      isLiked = true;
     } else {
       await pool.query(
         "DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2",
@@ -359,6 +363,18 @@ export const likeStory = async (req, res) => {
 
     if (postResult.rows.length === 0) {
       return res.status(404).json({ message: "Story not found" });
+    }
+
+    const postOwnerId = postResult.rows[0].user_id;
+
+    // Send notification to RabbitMQ if the story was liked (not unliked)
+    if (isLiked && postOwnerId !== userId) {
+      await sendNotificationToQueue({
+        type: "LIKE",
+        postId: id,
+        userId: postOwnerId, // Post owner who will receive the notification
+        likedBy: userId, // User who liked the post
+      });
     }
 
     // Fetch updated likes
@@ -418,6 +434,29 @@ export const likeStory = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Function to send notification to RabbitMQ
+async function sendNotificationToQueue(notification) {
+  try {
+    const connection = await amqp.connect("amqp://localhost");
+    const channel = await connection.createChannel();
+    await channel.assertQueue("notifications", { durable: true });
+
+    channel.sendToQueue(
+      "notifications",
+      Buffer.from(JSON.stringify(notification)),
+      {
+        persistent: true,
+      }
+    );
+
+    console.log("Sent to queue:", notification);
+
+    setTimeout(() => connection.close(), 500);
+  } catch (error) {
+    console.error("Failed to send notification:", error.message);
+  }
+}
 
 export const commentOnStory = async (req, res) => {
   const { id } = req.params;
