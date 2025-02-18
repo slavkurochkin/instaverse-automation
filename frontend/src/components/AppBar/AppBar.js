@@ -15,6 +15,7 @@ import {
   FETCH_PROFILE,
 } from '../../constants/actionTypes';
 import { jwtDecode } from 'jwt-decode';
+import NotificationBell from '../Notifications/NottificationBell';
 
 import styles from './styles';
 
@@ -109,6 +110,8 @@ export default function AppBar() {
         </Link>
       ) : (
         <div style={styles.userInfo}>
+          <NotificationBell userId={user?.result?._id} />{' '}
+          {/* Notification bell appears only when user is logged in */}
           <Dropdown menu={{ items }} trigger={['click']}>
             <Button htmlType="button" size="large" icon={<UserOutlined />}>
               {user?.result?.username}
