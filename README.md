@@ -192,6 +192,129 @@ CREATE TABLE post_comments (
 
 ---
 
+# Notification System Overview
+
+This project provides a WebSocket-based notification system integrated with RabbitMQ to deliver real-time notifications to users. The system is designed to handle both online and offline users by storing notifications for offline users and sending them when they reconnect.
+
+![RabbitMQ](/assets/rabbitmq.png)
+
+![Notifications Demo](/assets/notifications.gif)
+
+## Features
+
+- **Real-time notifications via WebSocket**: Clients (users) can connect to a WebSocket server to receive notifications.
+- **Offline message storage**: If a user is offline when a message is sent, the notification will be stored and delivered once the user reconnects.
+- **RabbitMQ integration**: Notifications are received from a RabbitMQ queue and delivered to the correct user through the WebSocket connection.
+
+## Architecture
+
+1. **WebSocket Server** (`ws`):
+
+   - A WebSocket server listens for incoming WebSocket connections from clients.
+   - Each client must include a `userId` as a query parameter when connecting. This ensures the server can associate messages with the correct user.
+   - When a client reconnects, it will receive any pending messages that were stored while it was offline. If no pending messages exist, the client receives a `user_back_online` notification.
+
+2. **Pending Messages Storage**:
+
+   - The server stores messages for offline users in a `pendingMessages` map, where the key is the `userId` and the value is an array of messages.
+   - When a client connects, the system checks if there are any pending messages. If so, they are sent immediately upon connection.
+
+3. **RabbitMQ Consumer**:
+   - The system listens to a RabbitMQ queue (`notifications`) for new messages.
+   - Upon receiving a message, the system checks if the corresponding user is online via WebSocket. If the user is online, the message is sent immediately. If the user is offline, the message is stored for future delivery when the user reconnects.
+
+## How it Works
+
+1. **Client Connection**:
+
+   - A client (user) connects to the WebSocket server with the URL:
+     ```
+     ws://localhost:8080?userId=<userId>
+     ```
+   - The server checks if the `userId` is provided and establishes a WebSocket connection.
+
+2. **Sending Notifications**:
+
+   - Notifications are sent to users via WebSocket when new messages are received from RabbitMQ.
+   - If the user is online, the message is immediately sent to the WebSocket client.
+   - If the user is offline, the message is stored in the `pendingMessages` map associated with the `userId`.
+
+3. **Offline Message Handling**:
+   - When an offline user reconnects, the WebSocket server checks if there are any pending messages for that user.
+   - If pending messages exist, they are sent to the user upon connection.
+   - If no pending messages exist, the server sends a `user_back_online` notification.
+
+## Setup and Running the Project
+
+1. **Install Dependencies**:
+
+   - Install the required dependencies for the project:
+     ```bash
+     npm install
+     ```
+
+2. **Start RabbitMQ**:
+
+   - Ensure that RabbitMQ is running on `localhost:5672`. You can use Docker to run RabbitMQ:
+     ```bash
+     docker run -d -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:management
+     ```
+
+3. **Start the WebSocket Server**:
+
+   - Run the WebSocket server:
+     ```bash
+     node backend/consumer.js
+     ```
+
+4. **Consume Messages from RabbitMQ**:
+
+   - The system will automatically start consuming messages from the `notifications` queue in RabbitMQ. Ensure that your RabbitMQ server has a queue named `notifications`.
+
+5. **Client Example**:
+   - You can connect a WebSocket client using the URL:
+     ```
+     ws://localhost:8080?userId=<userId>
+     ```
+     to test the notification system.
+
+## Example Notification Flow
+
+1. **User 1 sends a notification**:
+   - A notification is published to the RabbitMQ `notifications` queue with a payload:
+     ```json
+     {
+       "type": "LIKE",
+       "postId": "1",
+       "userId": 2,
+       "likedBy": 7
+     }
+     ```
+2. **User 2 is offline**:
+
+   - The notification for User 2 is stored in the `pendingMessages` map because User 2 is not connected at the time the message is sent.
+
+3. **User 2 reconnects**:
+
+   - Upon reconnecting, the WebSocket server sends any pending messages to User 2.
+
+4. **User 1 receives a message**:
+   - If User 1 is connected, they receive the notification in real-time.
+
+## Notes
+
+- **WebSocket Reconnection**: The WebSocket client should handle reconnections to ensure that users who disconnect and reconnect can still receive their notifications.
+- **Message Persistence**: The messages are stored in memory. If the server is restarted, the pending messages are lost. Consider integrating a persistent storage solution for message durability if needed.
+
+## Troubleshooting
+
+- **WebSocket Not Connecting**: Ensure that the `userId` query parameter is properly set when connecting to the WebSocket server.
+- **Messages Not Delivered**: Check if RabbitMQ is running and the queue is properly set up. Verify that the server is consuming messages from the correct queue.
+
+```
+node backend/consumer.js
+```
+
 ### Docker Setup
 
 Build and start the entire project using Docker Compose:

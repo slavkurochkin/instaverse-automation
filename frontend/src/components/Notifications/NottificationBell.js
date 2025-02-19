@@ -11,11 +11,20 @@ const NotificationBell = ({ userId }) => {
     const ws = new WebSocket(`ws://localhost:8080?userId=${userId}`);
 
     ws.onopen = () => console.log('Successfully connected to WebSocket server');
+
     ws.onmessage = (event) => {
       console.log('Received message:', event.data);
       const newNotification = JSON.parse(event.data);
+
+      // Ignore system messages like "user_back_online"
+      if (newNotification.type === 'user_back_online') {
+        console.log('System message ignored:', newNotification);
+        return;
+      }
+
       setNotifications((prev) => [...prev, newNotification]);
     };
+
     ws.onerror = (error) => console.error('WebSocket error:', error);
     ws.onclose = () => console.log('WebSocket connection closed');
 
@@ -76,7 +85,7 @@ const NotificationBell = ({ userId }) => {
           overflowCount={99}
           size="small"
         >
-          <BellOutlined style={{ fontSize: '28px', color: '#1890ff' }} />
+          <BellOutlined style={{ fontSize: '24px', color: '#ffffff' }} />
         </Badge>
       </div>
     </Dropdown>
