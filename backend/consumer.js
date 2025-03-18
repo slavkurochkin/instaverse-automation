@@ -62,11 +62,13 @@ const sendToSpecificUser = (reciverUserId, message) => {
   let messageSent = false;
 
   wss.clients.forEach((client) => {
+    console.log(client);
+    console.log(`User id: ${client.userId}`);
     if (
       client.readyState === WebSocket.OPEN &&
       client.userId === reciverUserId
     ) {
-      console.log("Found client 2 online, sending message");
+      console.log(`Found client ${client.userId} online, sending message`);
       client.send(JSON.stringify(message));
       messageSent = true;
     }
@@ -74,7 +76,7 @@ const sendToSpecificUser = (reciverUserId, message) => {
 
   // If user 2 is not online, store the message
   if (!messageSent) {
-    console.log("Client 2 is offline, storing message");
+    console.log(`Client ${reciverUserId} is offline, storing message`);
     if (!pendingMessages.has(reciverUserId)) {
       pendingMessages.set(reciverUserId, []);
     }
@@ -84,7 +86,10 @@ const sendToSpecificUser = (reciverUserId, message) => {
 
 async function startRabbitMQConsumer() {
   try {
-    const connection = await amqp.connect("amqp://localhost");
+    const rabbitHost = process.env.RABBITMQ_HOST || "rabbitmq"; // Set via env in Docker
+    const connection = await amqp.connect(
+      `amqp://guest:guest@${rabbitHost}:5672`
+    );
     const channel = await connection.createChannel();
     const queue = "notifications";
 

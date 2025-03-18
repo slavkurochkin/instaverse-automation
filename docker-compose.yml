@@ -10,7 +10,7 @@ services:
     depends_on:
       - backend
     env_file:
-      - .local.env # Load environment variables from the .env file
+      - frontend/.env.local # Load environment variables from the .env file
 
   backend:
     build:
@@ -18,14 +18,21 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
+      - "8080:8080"
     environment:
       - NODE_ENV=dev
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_HOST=rabbitmq # Use RabbitMQ container name
+      - POSTGRES_USER=postgres # PostgreSQL username
+      - POSTGRES_HOST=host.docker.internal # PostgreSQL container name
+      - POSTGRES_DB=instaverse # PostgreSQL database name
+      - POSTGRES_PASSWORD=123 # PostgreSQL password
+      - POSTGRES_PORT=5432 # Default PostgreSQL port
     depends_on:
       - rabbitmq
+      - postgres # Wait for PostgreSQL container to be ready
     volumes:
       - ./backend:/app
-    command: ["npm", "run", "local:start"] # Run the backend with npm script
+    command: ["sh", "-c", "npm run start:local & node consumer.js"]
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -36,11 +43,13 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_HOST: "rabbitmq"
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
 
   consumer:
     build:
@@ -49,10 +58,37 @@ services:
     container_name: consumer
     depends_on:
       rabbitmq:
-        condition: service_healthy
+        condition: service_healthy # Wait until RabbitMQ is healthy
     environment:
       - NODE_ENV=dev
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_URL=amqp://rabbitmq # Use RabbitMQ container name
     volumes:
       - ./backend:/app
     command: ["node", "consumer.js"] # Override CMD to run consumer.js
+
+  postgres:
+    image: postgres:13-alpine # Use the official PostgreSQL image
+    container_name: postgres
+    ports:
+      - "5434:5434" # PostgreSQL port
+    environment:
+      POSTGRES_USER: "postgres" # Define your PostgreSQL user
+      POSTGRES_PASSWORD: "123" # Define your PostgreSQL password
+      POSTGRES_DB: "instaverse" # Define your PostgreSQL database name
+      POSTGRES_PORT: "5432" # Set the port to the default PostgreSQL port
+    command: ["postgres", "-c", "listen_addresses='*'"] # Allow connections from any host
+    # Ensure the database is ready before starting the backend
+    # Use a healthcheck to ensure the database is ready before starting the backend
+    # Use a named volume to persist data across container restarts
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # Persist data in Docker volume
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "instaverse"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+volumes:
+  postgres-data: # Named volume to persist PostgreSQL data across container restarts

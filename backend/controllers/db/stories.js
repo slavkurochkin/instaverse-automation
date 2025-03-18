@@ -438,7 +438,10 @@ export const likeStory = async (req, res) => {
 // Function to send notification to RabbitMQ
 async function sendNotificationToQueue(notification) {
   try {
-    const connection = await amqp.connect("amqp://localhost");
+    const rabbitHost = process.env.RABBITMQ_HOST || "rabbitmq"; // Set via env in Docker
+    const connection = await amqp.connect(
+      `amqp://guest:guest@${rabbitHost}:5672`
+    );
     const channel = await connection.createChannel();
     await channel.assertQueue("notifications", { durable: true });
 
