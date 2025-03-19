@@ -18,7 +18,11 @@ interface Story {
   createdAt: string;
 }
 
-function StoriesList() {
+interface StoriesListProps {
+  userId?: string | null;
+}
+
+function StoriesList({userId}: StoriesListProps) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 

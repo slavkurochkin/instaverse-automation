@@ -19,6 +19,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StoriesList from './components/StoriesList';
 import LoginScreen from './components/LoginScreen';
+import SignUpScreen from './components/SignUpScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useRoute, RouteProp} from '@react-navigation/native';
 
@@ -26,6 +27,7 @@ type RootStackParamList = {
   MainTabs: undefined;
   Home: undefined;
   Login: undefined;
+  SignUp: undefined;
 };
 
 type TabParamList = {
@@ -173,7 +175,7 @@ const MainTabsScreen = ({navigation}: {navigation: NavigationProp}) => {
           fontWeight: 'bold',
         },
         headerTitle: '',
-        headerBackVisible: false,
+        headerLeft: () => null,
       }}>
       <Tab.Screen
         name="Feed"
@@ -213,11 +215,18 @@ const HomeScreen = ({navigation}: {navigation: NavigationProp}) => {
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Login')}
-          style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>Login</Text>
-        </TouchableOpacity>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SignUp')}
+            style={[styles.headerButton, {marginRight: 10}]}>
+            <Text style={styles.headerButtonText}>Sign Up</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Login')}
+            style={styles.headerButton}>
+            <Text style={styles.headerButtonText}>Login</Text>
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [navigation]);
@@ -296,6 +305,14 @@ const App = () => {
           component={LoginScreen}
           options={{
             title: 'Login',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignUpScreen}
+          options={{
+            title: 'Sign Up',
             headerShown: false,
           }}
         />
