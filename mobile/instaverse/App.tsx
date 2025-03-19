@@ -12,6 +12,9 @@ import {
   ActivityIndicator,
   TextInput,
   View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StoriesList from './components/StoriesList';
@@ -51,22 +54,104 @@ const FeedScreen = () => {
   return <StoriesList />;
 };
 
-const ProfileScreen = () => {
-  return <StoriesList />;
-};
+function ProfileScreen() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        console.log('Token from storage:', token);
+        if (!token) {
+          console.log('No token found');
+          return;
+        }
+
+        // Extract user ID from token
+        const payload = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(payload));
+        console.log('Decoded token payload:', decodedPayload);
+        if (decodedPayload.id) {
+          const id = decodedPayload.id.toString();
+          console.log('Setting user ID from token:', id);
+          setUserId(id);
+
+          // Fetch user profile data
+          const response = await fetch(
+            `http://127.0.0.1:5001/profile/users/${id}`,
+          );
+          const data = await response.json();
+          console.log('Profile data:', data);
+          setProfileData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  console.log('ProfileScreen userId:', userId);
+
+  return (
+    <View style={{flex: 1, backgroundColor: '#f5f5f5'}}>
+      {profileData ? (
+        <View style={{padding: 16}}>
+          <View style={styles.profileHeader}>
+            <View
+              style={[
+                styles.avatarContainer,
+                {
+                  backgroundColor:
+                    profileData.gender === 'male'
+                      ? 'rgb(0, 135, 251)'
+                      : '#FF00FF',
+                },
+              ]}>
+              <Icon
+                name={
+                  profileData.gender === 'male'
+                    ? 'account-tie'
+                    : 'account-heart'
+                }
+                size={50}
+                color="white"
+              />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.username}>{profileData.username}</Text>
+              <Text style={styles.bio}>{profileData.bio}</Text>
+              <Text style={styles.stats}>
+                Total Posts: {profileData.total_posts}
+              </Text>
+            </View>
+          </View>
+          <StoriesList userId={userId} />
+        </View>
+      ) : (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text>Loading profile...</Text>
+        </View>
+      )}
+    </View>
+  );
+}
 
 // Main tabs screen
 const MainTabsScreen = ({navigation}: {navigation: NavigationProp}) => {
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Button
-          title="Logout"
+        <TouchableOpacity
           onPress={async () => {
             await AsyncStorage.removeItem('token');
             navigation.replace('Home');
           }}
-        />
+          style={styles.headerButton}>
+          <Text style={styles.headerButtonText}>Logout</Text>
+        </TouchableOpacity>
       ),
     });
   }, [navigation]);
@@ -88,6 +173,7 @@ const MainTabsScreen = ({navigation}: {navigation: NavigationProp}) => {
           fontWeight: 'bold',
         },
         headerTitle: '',
+        headerBackVisible: false,
       }}>
       <Tab.Screen
         name="Feed"
@@ -127,7 +213,11 @@ const HomeScreen = ({navigation}: {navigation: NavigationProp}) => {
   React.useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Button title="Login" onPress={() => navigation.navigate('Login')} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Login')}
+          style={styles.headerButton}>
+          <Text style={styles.headerButtonText}>Login</Text>
+        </TouchableOpacity>
       ),
     });
   }, [navigation]);
@@ -183,6 +273,7 @@ const App = () => {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerLeft: () => null,
         }}>
         <Stack.Screen
           name="Home"
@@ -212,5 +303,57 @@ const App = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  profileHeader: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginRight: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  username: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  bio: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+  },
+  stats: {
+    fontSize: 14,
+    color: '#888',
+  },
+  headerButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  headerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
 
 export default App;
