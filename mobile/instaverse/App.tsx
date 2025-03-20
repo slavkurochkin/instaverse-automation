@@ -28,6 +28,7 @@ type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   SignUp: undefined;
+  NewPost: undefined;
 };
 
 type TabParamList = {
@@ -56,7 +57,7 @@ const FeedScreen = () => {
   return <StoriesList />;
 };
 
-function ProfileScreen() {
+function ProfileScreen({navigation}: {navigation: NavigationProp}) {
   const [userId, setUserId] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<any>(null);
 
@@ -95,6 +96,16 @@ function ProfileScreen() {
     fetchProfile();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      // Navigate to Home screen after logout
+      navigation.replace('Home');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   console.log('ProfileScreen userId:', userId);
 
   return (
@@ -128,6 +139,12 @@ function ProfileScreen() {
               <Text style={styles.stats}>
                 Total Posts: {profileData.total_posts}
               </Text>
+              <TouchableOpacity
+                onPress={handleLogout}
+                style={styles.logoutButton}>
+                <Icon name="logout" size={16} color="#FF3B30" />
+                <Text style={styles.logoutButtonText}>Logout</Text>
+              </TouchableOpacity>
             </View>
           </View>
           <StoriesList userId={userId} />
@@ -143,21 +160,6 @@ function ProfileScreen() {
 
 // Main tabs screen
 const MainTabsScreen = ({navigation}: {navigation: NavigationProp}) => {
-  React.useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={async () => {
-            await AsyncStorage.removeItem('token');
-            navigation.replace('Home');
-          }}
-          style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>Logout</Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
   return (
     <Tab.Navigator
       screenOptions={{
@@ -363,13 +365,34 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   headerButton: {
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
     paddingVertical: 8,
   },
   headerButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    marginLeft: 4,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 6,
+    borderRadius: 6,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FF3B30',
+    alignSelf: 'flex-start',
+  },
+  logoutButtonText: {
+    color: '#FF3B30',
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 
