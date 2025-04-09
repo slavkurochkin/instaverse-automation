@@ -10,6 +10,11 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -26,6 +31,7 @@ import userRoutes from "./routes/users.js";
 import profileRoutes from "./routes/profile.js";
 
 const app = express();
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
