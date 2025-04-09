@@ -1,16 +1,29 @@
 import mongoose from "mongoose";
 import Story from "../../models/storyContent.js";
 // import stories from "../data/stories.json" with { type: "json" };
-import { readFileSync } from "fs";
+import fs from "fs";
 const stories = JSON.parse(
-  readFileSync(new URL("../../data/stories.json", import.meta.url))
+  fs.readFileSync(new URL("../../data/stories.json", import.meta.url))
 );
 import { users } from "./users.js";
 
 const getStories = async (req, res) => {
   try {
-    const story = stories;
-    res.status(200).json(story);
+    // Modify image paths to include full URL
+    // Ensure we return all fields + the correct image URL
+
+    const updatedStories = stories.map((story) => {
+      if (story.image && story.image.startsWith("http://")) {
+        return { ...story };
+      } else {
+        return {
+          ...story,
+          image: `${req.protocol}://${req.get("host")}/images/${story.image}`,
+        };
+      }
+    });
+
+    res.status(200).json(updatedStories);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -70,45 +83,70 @@ const getAllTags = async (req, res) => {
 };
 
 const createStory = async (req, res) => {
-  const body = req.body;
-  let uniqueId =
-    Date.now().toString(36) + Math.random().toString(36).substring(2);
-  console.log(req.userId);
-  const newStory = {
-    ...body,
-    _id: uniqueId,
-    likes: [],
-    userId: req.userId,
-    comments: [],
-    postDate: new Date().toISOString(),
-  };
-
-  if (newStory.tags !== undefined) {
-    const tagArray = newStory.tags.split(",");
-    newStory.tags = tagArray;
-  }
-
-  newStory.category = newStory.category;
-  newStory.device = newStory.device;
-
-  if (newStory.social !== undefined) {
-    const socialArray = newStory.social.join(", ");
-    newStory.social = socialArray;
-  }
-
   try {
+    const body = req.body;
+    const uniqueId =
+      Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+    let imagePath = null;
+
+    // Handle Base64 image
+    if (body.image && body.image.startsWith("data:image")) {
+      const matches = body.image.match(/^data:image\/(\w+);base64,(.+)$/);
+      if (!matches) {
+        return res.status(400).json({ message: "Invalid image format" });
+      }
+
+      const ext = matches[1]; // Extract file extension (e.g., png, jpg)
+      const base64Data = matches[2]; // Extract Base64 content
+      imagePath = `public/images/${uniqueId}.${ext}`;
+      fs.writeFileSync(imagePath, Buffer.from(base64Data, "base64"));
+
+      // Convert to accessible URL
+      imagePath = `${uniqueId}.${ext}`;
+    }
+
+    const newStory = {
+      ...body,
+      _id: uniqueId,
+      likes: [],
+      userId: req.userId,
+      comments: [],
+      postDate: new Date().toISOString(),
+      image: imagePath, // Store URL if image was saved
+    };
+
+    // Ensure tags are stored as an array
+    if (typeof newStory.tags === "string") {
+      newStory.tags = newStory.tags.split(",").map((tag) => tag.trim());
+    }
+
+    // Ensure social is stored as an array
+    if (typeof newStory.social === "string") {
+      newStory.social = newStory.social.split(",").map((s) => s.trim());
+    }
+
+    // Save story to in-memory database (or actual DB)
     stories.push(newStory);
 
     // Increment totalPosts for the user
-    console.log(req.userId);
     const user = users.find((u) => u._id === req.userId);
     if (user) {
       user.totalPosts = (user.totalPosts || 0) + 1;
     }
 
+    // Return the newly created story
+    // Ensure the image path is a full URL
+    newStory.image = `${req.protocol}://${req.get("host")}/images/${imagePath}`;
+    // Return the new story with the full image URL
+
     res.status(201).json(newStory);
+
+    // hack to show image after refresh
+    newStory.image = `${imagePath}`;
   } catch (error) {
-    res.status(409).json({ message: error.message });
+    console.error("Error creating story:", error);
+    res.status(500).json({ message: "Failed to create story" });
   }
 };
 
@@ -159,6 +197,19 @@ const deleteStory = async (req, res) => {
     return res.status(404).send("This id doesnt belong to any story");
   }
 
+  // Delete the image file if it exists
+  if (story.image) {
+    const imagePath = `public/images/${story.image}`;
+    console.log("Deleting image at path:", imagePath);
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error(`Failed to delete image file: ${imagePath}`, err);
+      } else {
+        console.log(`Image file deleted: ${imagePath}`);
+      }
+    });
+  }
+
   // stories.filter(t => t._id.name != _id);
   stories.splice(objIndex, 1);
 
@@ -189,6 +240,13 @@ const likeStory = async (req, res) => {
   }
 
   const updatedStory = stories[objIndex];
+
+  // Update only if not already set to full URL
+  if (!updatedStory.image.startsWith("http")) {
+    updatedStory.image = `${req.protocol}://${req.get("host")}/images/${updatedStory.image}`;
+  }
+
+  res.json(updatedStory);
 
   res.json(updatedStory);
 };
@@ -295,6 +353,19 @@ const deleteUserStories = async (req, res) => {
   // Remove the user's stories from the main stories array
   for (let i = stories.length - 1; i >= 0; i--) {
     if (stories[i].userId === userId) {
+      // Delete the image file if it exists
+      if (stories[i].image) {
+        const imagePath = `public/images/${story.image}`;
+        console.log("Deleting image at path:", imagePath);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error(`Failed to delete image file: ${imagePath}`, err);
+          } else {
+            console.log(`Image file deleted: ${imagePath}`);
+          }
+        });
+      }
+
       stories.splice(i, 1);
     }
   }
