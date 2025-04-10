@@ -2,6 +2,22 @@
 
 Instaverse Automation is a full-stack web project using React as the frontend, Express.js as the backend and PostgreSQL as Database. The project includes linting and code formatting tools (ESLint and Prettier), Docker support for containerization, and OpenAPI for API documentation.
 
+- [Application Demo](#application-demo)
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Database Setup](#database-setup)
+- [Notifications System](#notification-system-overview)
+- [API Documentation](#api-documentation)
+- [SonatQube Configuration](##sonarqube-configuration)
+- [Testing](#testing)
+  - [E2E Testing with Playwright](#e2e-testing-with-playwright)
+  - [Contract Testing with Pact](#contract-testing)
+  - [Unit Testing and Coverage with Jest](#unit-testing-and-coverage)
+- [Pre-Commit Hooks Setup](#pre-commit-hooks-setup)
+- [Monitoring and Observability](#monitoring-and-observability-with-sentry)
+- [Contributing](#contributing)
+
 ## Application Demo
 
 Login, sorting and commenting
