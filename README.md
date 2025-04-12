@@ -393,6 +393,8 @@ npm run format
 
 # Testing
 
+![Test Types](/assets/test-types.gif)
+
 ## Test Data Seeding
 
 ![Test Data Seeding](/assets/test-data-seeding.gif)
