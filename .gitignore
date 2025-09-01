@@ -19,7 +19,8 @@ mobile/instaverse/.DS_Store
 
 # Xcode
 #
-mobile/instaverse/build/
+mobile/instaverse/ios/build/*
+mobile/instaverse/ios/build/generated/ios
 mobile/instaverse/*.pbxuser
 mobile/instaverse/!default.pbxuser
 mobile/instaverse/*.mode1v3
