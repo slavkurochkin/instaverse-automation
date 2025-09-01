@@ -67,7 +67,8 @@ const NotificationBell = ({ userId }) => {
 
   return (
     <Dropdown
-      overlay={menu}
+      menu={{ items: [] }}
+      dropdownRender={() => menu}
       trigger={['click']}
       open={visible}
       onOpenChange={handleBellClick}
