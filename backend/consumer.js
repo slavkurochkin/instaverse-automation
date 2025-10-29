@@ -3,7 +3,6 @@ import amqp from "amqplib";
 
 // Start WebSocket Server
 const wss = new WebSocketServer({ port: 8080 });
-let reciverUserId = "";
 
 // Store messages for offline clients
 const pendingMessages = new Map();
@@ -27,27 +26,16 @@ wss.on("connection", (ws, req) => {
     ws.userId = userId;
     console.log(`Client connected - userId: ${ws.userId}`);
 
-    if (userId === reciverUserId) {
-      // Check if there were pending messages
-      if (
-        pendingMessages.has(reciverUserId) &&
-        pendingMessages.get(reciverUserId).length > 0
-      ) {
-        console.log(`Sending pending messages to user 2`);
-        const messages = pendingMessages.get(reciverUserId);
-        messages.forEach((message) => {
-          ws.send(JSON.stringify(message));
-        });
-        pendingMessages.delete(reciverUserId);
-      } else {
-        // Only send "user_back_online" if there were *no* pending messages
-        console.log("No pending messages, sending user_back_online");
-        const notification = {
-          type: "user_back_online",
-          userId: reciverUserId,
-        };
-        ws.send(JSON.stringify(notification));
-      }
+    // Check if there are pending messages for this user
+    if (pendingMessages.has(userId) && pendingMessages.get(userId).length > 0) {
+      console.log(
+        `Sending ${pendingMessages.get(userId).length} pending messages to user ${userId}`
+      );
+      const messages = pendingMessages.get(userId);
+      messages.forEach((message) => {
+        ws.send(JSON.stringify(message));
+      });
+      pendingMessages.delete(userId);
     }
 
     ws.on("close", () => {
@@ -60,25 +48,23 @@ wss.on("connection", (ws, req) => {
 
 const sendToSpecificUser = (reciverUserId, message) => {
   let messageSent = false;
+  const userIdStr = reciverUserId.toString();
 
   wss.clients.forEach((client) => {
-    if (
-      client.readyState === WebSocket.OPEN &&
-      client.userId === reciverUserId
-    ) {
-      console.log("Found client 2 online, sending message");
+    if (client.readyState === WebSocket.OPEN && client.userId === userIdStr) {
+      console.log(`Found client ${userIdStr} online, sending message`);
       client.send(JSON.stringify(message));
       messageSent = true;
     }
   });
 
-  // If user 2 is not online, store the message
+  // If user is not online, store the message
   if (!messageSent) {
-    console.log("Client 2 is offline, storing message");
-    if (!pendingMessages.has(reciverUserId)) {
-      pendingMessages.set(reciverUserId, []);
+    console.log(`Client ${userIdStr} is offline, storing message`);
+    if (!pendingMessages.has(userIdStr)) {
+      pendingMessages.set(userIdStr, []);
     }
-    pendingMessages.get(reciverUserId).push(message);
+    pendingMessages.get(userIdStr).push(message);
   }
 };
 
@@ -97,9 +83,14 @@ async function startRabbitMQConsumer() {
         const notification = JSON.parse(msg.content.toString());
         console.log("Received Notification:", notification);
 
-        console.log("notification.userId:", notification.userId);
-        reciverUserId = notification.userId.toString();
-        sendToSpecificUser(reciverUserId, notification);
+        const reciverUserId = notification.userId?.toString();
+        console.log("Sending notification to userId:", reciverUserId);
+
+        if (reciverUserId) {
+          sendToSpecificUser(reciverUserId, notification);
+        } else {
+          console.error("Notification missing userId:", notification);
+        }
 
         channel.ack(msg);
       }
