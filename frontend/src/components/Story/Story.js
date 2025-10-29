@@ -257,6 +257,8 @@ function Story({ story, setSelectedId }) {
           onExpand: () => setExpand(true),
           onEllipsis: () => setExpand(false),
         }}
+        // Add key to force re-render when caption changes to prevent ResizeObserver issues
+        key={`caption-${story._id}-${story.caption?.length || 0}`}
       >
         {story.caption}
       </Paragraph>
