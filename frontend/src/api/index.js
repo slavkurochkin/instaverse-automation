@@ -48,6 +48,8 @@ export const getProfile = async (formValues) => api.get('/profile', formValues);
 export const getUserProfiles = async () => api.get(`/profile/users`);
 export const getUserProfile = async (userId) =>
   api.get(`/profile/users/${userId}`);
+export const uploadProfileImage = async (imageData) =>
+  api.post('/profile/upload-image', { image: imageData });
 
 // export const fetchProfile = async () => api.get("/user/profile");
 // export const updateProfile = async (formValues) => api.post("/user/profile", formValues);

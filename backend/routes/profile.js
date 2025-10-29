@@ -8,7 +8,7 @@ const db =
     ? await import("../controllers/db/profile.js")
     : await import("../controllers/no-db/profile.js");
 
-const { getProfile, getUserProfile, getAllProfiles } = db;
+const { getProfile, getUserProfile, getAllProfiles, uploadProfileImage } = db;
 
 const router = Router();
 import authentication from "../midlewares/authentication.js";
@@ -94,5 +94,45 @@ router.get("/users/:userId", authentication, getUserProfile);
  *         description: Unauthorized access.
  */
 router.get("/users", authentication, getAllProfiles);
+
+/**
+ * @openapi
+ * /profile/upload-image:
+ *   post:
+ *     summary: Upload profile image for the authenticated user.
+ *     tags:
+ *       - Profile
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 description: Base64 encoded image data
+ *     responses:
+ *       200:
+ *         description: Profile image uploaded successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 avatar:
+ *                   type: string
+ *       400:
+ *         description: Invalid image format.
+ *       401:
+ *         description: Unauthorized access.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post("/upload-image", authentication, uploadProfileImage);
 
 export default router;

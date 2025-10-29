@@ -15,6 +15,15 @@ const profileReducer = (state = { profile: {} }, action) => {
       return { ...state, profile: action.payload };
     case 'FETCH_USER_PROFILES_SUCCESS':
       return { ...state, profiles: action.payload };
+    case 'UPLOAD_PROFILE_IMAGE':
+      // Update the profile with the new avatar URL
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          avatar: action.payload.avatar,
+        },
+      };
     default:
       return state;
   }

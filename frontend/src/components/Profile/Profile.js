@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { EditOutlined, CheckOutlined } from '@ant-design/icons';
-import { Avatar, Card, Input, message, Spin, Modal } from 'antd';
+import { EditOutlined, CheckOutlined, CameraOutlined } from '@ant-design/icons';
+import {
+  Avatar,
+  Card,
+  Input,
+  message,
+  Spin,
+  Modal,
+  Upload,
+  Button,
+} from 'antd';
 import styles from './styles'; // Import styles
 import { useDispatch } from 'react-redux';
-import { getUserStories, getUserProfile } from '../../actions/profile';
+import {
+  getUserStories,
+  getUserProfile,
+  uploadProfileImage,
+} from '../../actions/profile';
 import StoryList from '../StoryList';
 import StoryForm from '../StoryForm'; // Import StoryForm component
 import { useLocation } from 'react-router-dom'; // Import useLocation
@@ -53,6 +66,10 @@ export default function Profile() {
 
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [selectedId, setSelectedId] = useState(null); // Track selected story ID
+  const [uploading, setUploading] = useState(false); // Track image upload state
+  const [avatar, setAvatar] = useState(
+    user?.result?.avatar || 'https://api.dicebear.com/7.x/miniavs/svg?seed=2',
+  );
 
   useEffect(() => {
     document.title = 'Instaverse'; // Set document title on component mount
@@ -101,6 +118,47 @@ export default function Profile() {
     setSelectedId(null); // Reset the selected story ID
   };
 
+  const handleImageUpload = async (file) => {
+    setUploading(true);
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Image = e.target.result;
+
+        try {
+          const response = await dispatch(uploadProfileImage(base64Image));
+
+          if (response && response.avatar) {
+            setAvatar(response.avatar);
+
+            // Update localStorage with new avatar
+            const updatedUser = {
+              ...user,
+              result: { ...user.result, avatar: response.avatar },
+            };
+            localStorage.setItem('profile', JSON.stringify(updatedUser));
+
+            message.success('Profile image updated successfully!');
+          }
+        } catch (error) {
+          message.error('Failed to upload profile image');
+          console.error('Upload error:', error);
+        } finally {
+          setUploading(false);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      message.error('Failed to process image');
+      setUploading(false);
+    }
+
+    return false; // Prevent default upload behavior
+  };
+
   return (
     <div style={styles.center} className={styles.profileContainer}>
       <style>{`.ant-spin-nested-loading { ${styles.spinOverlay} }`}</style>
@@ -113,14 +171,40 @@ export default function Profile() {
         <Card style={{ width: '100%' }}>
           <Meta
             avatar={
-              <Avatar
-                src={
-                  user?.result?.avatar ||
-                  'https://api.dicebear.com/7.x/miniavs/svg?seed=2'
-                } // Default avatar URL
-                size={64} // Adjust size as needed
-                style={{ backgroundColor: '#f0f0f0', borderRadius: '50%' }} // Instagram-like circular style
-              />
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Avatar
+                  src={
+                    userId
+                      ? userProfile?.avatar ||
+                        'https://api.dicebear.com/7.x/miniavs/svg?seed=2'
+                      : avatar
+                  }
+                  size={64}
+                  style={{ backgroundColor: '#f0f0f0', borderRadius: '50%' }}
+                />
+                {!userId && (
+                  <Upload
+                    beforeUpload={handleImageUpload}
+                    accept="image/*"
+                    showUploadList={false}
+                    disabled={uploading}
+                  >
+                    <Button
+                      type="primary"
+                      shape="circle"
+                      icon={<CameraOutlined />}
+                      size="small"
+                      loading={uploading}
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        zIndex: 1,
+                      }}
+                    />
+                  </Upload>
+                )}
+              </div>
             }
             title={
               isEditingName ? (
