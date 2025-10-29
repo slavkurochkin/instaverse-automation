@@ -41,8 +41,20 @@ const getUserStories = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    // Return the user's stories
-    res.status(200).json(userStories);
+    // Modify image paths to include full URL (same as getStories function)
+    const updatedUserStories = userStories.map((story) => {
+      if (story.image && story.image.startsWith("http://")) {
+        return { ...story };
+      } else {
+        return {
+          ...story,
+          image: `${req.protocol}://${req.get("host")}/images/${story.image}`,
+        };
+      }
+    });
+
+    // Return the user's stories with proper image URLs
+    res.status(200).json(updatedUserStories);
   } catch (error) {
     // Handle any unexpected errors
     res.status(500).json({ message: error.message });
@@ -59,7 +71,19 @@ const getStoriesByTag = async (req, res) => {
       }
     });
 
-    res.status(200).json(newStories);
+    // Modify image paths to include full URL (same as getStories function)
+    const updatedStories = newStories.map((story) => {
+      if (story.image && story.image.startsWith("http://")) {
+        return { ...story };
+      } else {
+        return {
+          ...story,
+          image: `${req.protocol}://${req.get("host")}/images/${story.image}`,
+        };
+      }
+    });
+
+    res.status(200).json(updatedStories);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -247,8 +271,6 @@ const likeStory = async (req, res) => {
   }
 
   res.json(updatedStory);
-
-  res.json(updatedStory);
 };
 
 // Adding commentOnStory function
@@ -290,8 +312,12 @@ const commentOnStory = async (req, res) => {
   stories[objIndex].comments.push(newComment);
 
   // Return the updated story with the new comment
-
   const updatedStory = stories[objIndex];
+
+  // Update only if not already set to full URL
+  if (!updatedStory.image.startsWith("http")) {
+    updatedStory.image = `${req.protocol}://${req.get("host")}/images/${updatedStory.image}`;
+  }
 
   res.status(201).json(updatedStory);
 };
@@ -334,6 +360,11 @@ const deleteComment = async (req, res) => {
 
   // Return the updated story
   const updatedStory = stories[storyIndex];
+
+  // Update only if not already set to full URL
+  if (!updatedStory.image.startsWith("http")) {
+    updatedStory.image = `${req.protocol}://${req.get("host")}/images/${updatedStory.image}`;
+  }
 
   res.status(200).json(updatedStory);
 };

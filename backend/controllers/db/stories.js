@@ -107,7 +107,21 @@ export const getUserStories = async (req, res) => {
       `;
 
     const result = await pool.query(query, [userId]);
-    res.status(200).json(result.rows[0]?.stories || []);
+    const stories = result.rows[0]?.stories || [];
+
+    // Convert image paths to full URLs (same as no-db version)
+    const updatedStories = stories.map((story) => {
+      if (story.image && story.image.startsWith("http://")) {
+        return { ...story };
+      } else {
+        return {
+          ...story,
+          image: `${req.protocol}://${req.get("host")}/images/${story.image}`,
+        };
+      }
+    });
+
+    res.status(200).json(updatedStories);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -121,7 +135,20 @@ export const getStoriesByTag = async (req, res) => {
       "SELECT p.* FROM posts p JOIN post_tags pt ON p.id = pt.post_id WHERE pt.tag = $1",
       [tagId]
     );
-    res.status(200).json(result.rows);
+
+    // Convert image paths to full URLs
+    const updatedStories = result.rows.map((story) => {
+      if (story.image && story.image.startsWith("http://")) {
+        return { ...story };
+      } else {
+        return {
+          ...story,
+          image: `${req.protocol}://${req.get("host")}/images/${story.image}`,
+        };
+      }
+    });
+
+    res.status(200).json(updatedStories);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
