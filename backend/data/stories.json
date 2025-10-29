@@ -1,13 +1,13 @@
 [
   {
     "_id": "1",
-    "caption": "test test",
+    "caption": "The majestic iguana",
     "category": "animals",
     "device": "camera",
     "social": ["instagram"],
     "username": "Admin User",
     "userId": "1",
-    "image": "flower.png",
+    "image": "iguana-christmas.png",
     "tags": ["test", "quest"],
     "likes": ["1"],
     "postDate": "2024-10-20T04:32:53.836+00:00",
