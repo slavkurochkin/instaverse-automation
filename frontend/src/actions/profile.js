@@ -1,5 +1,9 @@
 import * as api from '../api';
-import { FETCH_PROFILE, FETCH_USER_STORIES } from '../constants/actionTypes';
+import {
+  FETCH_PROFILE,
+  FETCH_USER_STORIES,
+  UPLOAD_PROFILE_IMAGE,
+} from '../constants/actionTypes';
 
 export const getProfile = () => async (dispatch) => {
   try {
@@ -35,5 +39,16 @@ export const getUserStories = (userId) => async (dispatch) => {
     dispatch({ type: FETCH_USER_STORIES, payload: data });
   } catch (error) {
     console.log(error.message);
+  }
+};
+
+export const uploadProfileImage = (imageData) => async (dispatch) => {
+  try {
+    const { data } = await api.uploadProfileImage(imageData);
+    dispatch({ type: UPLOAD_PROFILE_IMAGE, payload: data });
+    return data;
+  } catch (error) {
+    console.log(error.message);
+    throw error;
   }
 };
