@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import StoryList from '../StoryList';
 import StoryForm from '../StoryForm';
+import ErrorBoundary from '../ErrorBoundary';
 // import Tags from "../Tags";
 // import StorySearch from "../StorySearch";
 import { Layout } from 'antd';
@@ -29,18 +30,24 @@ const Home = () => {
   dispatch(fetchAllTags());
 
   return (
-    <Layout>
-      <Sider style={styles.sider} width={400}>
-        <StoryForm
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-          handleClose={() => {}}
-        />
-      </Sider>
-      <Content style={styles.content}>
-        <StoryList setSelectedId={setSelectedId} />
-      </Content>
-    </Layout>
+    <ErrorBoundary>
+      <Layout>
+        <Sider style={styles.sider} width={400}>
+          <ErrorBoundary>
+            <StoryForm
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              handleClose={() => {}}
+            />
+          </ErrorBoundary>
+        </Sider>
+        <Content style={styles.content}>
+          <ErrorBoundary>
+            <StoryList setSelectedId={setSelectedId} />
+          </ErrorBoundary>
+        </Content>
+      </Layout>
+    </ErrorBoundary>
   );
 };
 
