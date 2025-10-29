@@ -10,5 +10,17 @@
     "totalPosts": 1,
     "email": "admin@gmail.com",
     "password": "$2a$12$6GVrudvnEIl8YOZglieh.Odlguv1eOYYY6eLqkc3MQyKYa1z1mBNu"
+  },
+  {
+    "_id": "2",
+    "username": "Standrd User",
+    "role": "user",
+    "age": 32,
+    "gender": "female",
+    "bio": "Hello, my name is Anna, and I like photography",
+    "favorite_style": "outdoor",
+    "totalPosts": 1,
+    "email": "123@gmail.com",
+    "password": "$2a$12$6GVrudvnEIl8YOZglieh.Odlguv1eOYYY6eLqkc3MQyKYa1z1mBNu"
   }
 ]

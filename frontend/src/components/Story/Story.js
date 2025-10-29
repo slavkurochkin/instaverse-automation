@@ -229,7 +229,7 @@ function Story({ story, setSelectedId }) {
         <Image
           src={story.image}
           width="100%"
-          preview={false}
+          preview={true}
           style={{ aspectRatio: '1 / 1', objectFit: 'cover' }}
           placeholder={
             <div

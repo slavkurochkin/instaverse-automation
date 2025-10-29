@@ -6,6 +6,11 @@ const stories = JSON.parse(
   fs.readFileSync(new URL("../../data/stories.json", import.meta.url))
 );
 import { users } from "./users.js";
+import amqp from "amqplib";
+
+// Track notifications sent to prevent duplicates (e.g., when user likes, unlikes, then likes again)
+// Key format: `${postId}-${likedBy}`, value: true if notification was sent
+const sentNotifications = new Set();
 
 const getStories = async (req, res) => {
   try {
@@ -240,6 +245,87 @@ const deleteStory = async (req, res) => {
   res.json({ message: "Story deleted successfully" });
 };
 
+// Function to send notification to RabbitMQ
+async function sendNotificationToQueue(notification) {
+  let connection = null;
+  let channel = null;
+  try {
+    // Connect to RabbitMQ with a timeout wrapper
+    const connectPromise = amqp.connect("amqp://localhost");
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error("Connection timeout: RabbitMQ server may not be running")
+          ),
+        5000
+      )
+    );
+
+    // Use Promise.race but catch errors properly
+    connection = await Promise.race([connectPromise, timeoutPromise]);
+
+    channel = await connection.createChannel();
+    await channel.assertQueue("notifications", { durable: true });
+
+    channel.sendToQueue(
+      "notifications",
+      Buffer.from(JSON.stringify(notification)),
+      {
+        persistent: true,
+      }
+    );
+
+    console.log("Sent to queue:", notification);
+  } catch (error) {
+    // Handle AggregateError (can happen when Promise.race has multiple rejections)
+    let errorMessage = "Unknown error";
+    if (error instanceof AggregateError) {
+      // Extract the first meaningful error from AggregateError
+      const firstError = error.errors?.[0];
+      errorMessage =
+        firstError?.message ||
+        firstError?.toString() ||
+        error.message ||
+        error.toString();
+      console.error("AggregateError details:", error.errors);
+    } else {
+      errorMessage = error?.message || error?.toString() || "Unknown error";
+    }
+
+    console.error("Failed to send notification:", errorMessage);
+
+    if (
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("timeout") ||
+      errorMessage.includes("Connection timeout") ||
+      errorMessage.includes("ENOTFOUND")
+    ) {
+      console.warn(
+        "⚠️  RabbitMQ appears to be unavailable. Notifications are disabled."
+      );
+      console.warn(
+        "   To enable notifications, start RabbitMQ with: docker run -d -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:management"
+      );
+    }
+
+    // Fail silently - notifications are optional functionality
+    // The main request should still succeed even if notifications fail
+  } finally {
+    // Clean up resources
+    try {
+      if (channel) await channel.close();
+    } catch (closeError) {
+      // Ignore close errors
+    }
+    try {
+      if (connection) await connection.close();
+    } catch (closeError) {
+      // Ignore close errors
+    }
+  }
+}
+
 const likeStory = async (req, res) => {
   const { id: _id } = req.params;
 
@@ -255,15 +341,42 @@ const likeStory = async (req, res) => {
   //Find index of specific object using findIndex method.
   let objIndex = stories.findIndex((t) => t._id === _id);
 
+  let isLiked = false;
+
   if (index === -1) {
     // if user has not liked the story
     stories[objIndex].likes.push(req.userId);
+    isLiked = true;
   } else {
     stories[objIndex].likes.splice(index, 1); // 2nd parameter means remove one item only
     // stories[objIndex].likes.filter(t => t._id !== String(req.userId));
   }
 
   const updatedStory = stories[objIndex];
+
+  // Send notification to RabbitMQ if the story was liked (not unliked)
+  // Only send notification if this is the FIRST time this user has liked this post
+  // (prevents duplicate notifications when user likes, unlikes, then likes again)
+  const notificationKey = `${_id}-${req.userId}`;
+  const hasSentNotification = sentNotifications.has(notificationKey);
+
+  if (isLiked && story.userId !== req.userId && !hasSentNotification) {
+    // Get username of the user who liked the post
+    const likedByUser = users.find((u) => u._id === req.userId);
+    const likedByUsername = likedByUser ? likedByUser.username : "Someone";
+
+    await sendNotificationToQueue({
+      type: "LIKE",
+      postId: _id,
+      userId: story.userId, // Post owner who will receive the notification
+      likedBy: req.userId, // User who liked the post
+      username: likedByUsername, // Username of the person who liked
+      postTitle: story.caption || "Untitled Post", // Post caption/title
+    });
+
+    // Mark that we've sent a notification for this user+post combination
+    sentNotifications.add(notificationKey);
+  }
 
   // Update only if not already set to full URL
   if (!updatedStory.image.startsWith("http")) {

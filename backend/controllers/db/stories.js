@@ -1,6 +1,10 @@
 import pool from "../../db.js";
 import amqp from "amqplib";
 
+// Track notifications sent to prevent duplicates (e.g., when user likes, unlikes, then likes again)
+// Key format: `${postId}-${likedBy}`, value: true if notification was sent
+const sentNotifications = new Set();
+
 export const getStories = async (req, res) => {
   try {
     const query = `
@@ -393,15 +397,33 @@ export const likeStory = async (req, res) => {
     }
 
     const postOwnerId = postResult.rows[0].user_id;
+    const postCaption = postResult.rows[0].caption;
+
+    // Fetch username of the user who liked the post
+    const likedByUserResult = await pool.query(
+      "SELECT username FROM users WHERE _id = $1",
+      [userId]
+    );
+    const likedByUsername = likedByUserResult.rows[0]?.username || "Someone";
 
     // Send notification to RabbitMQ if the story was liked (not unliked)
-    if (isLiked && postOwnerId !== userId) {
+    // Only send notification if this is the FIRST time this user has liked this post
+    // (prevents duplicate notifications when user likes, unlikes, then likes again)
+    const notificationKey = `${id}-${userId}`;
+    const hasSentNotification = sentNotifications.has(notificationKey);
+
+    if (isLiked && postOwnerId !== userId && !hasSentNotification) {
       await sendNotificationToQueue({
         type: "LIKE",
         postId: id,
         userId: postOwnerId, // Post owner who will receive the notification
         likedBy: userId, // User who liked the post
+        username: likedByUsername, // Username of the person who liked
+        postTitle: postCaption || "Untitled Post", // Post caption/title
       });
+
+      // Mark that we've sent a notification for this user+post combination
+      sentNotifications.add(notificationKey);
     }
 
     // Fetch updated likes
