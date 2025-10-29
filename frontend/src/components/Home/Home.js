@@ -17,7 +17,9 @@ const Home = () => {
 
   useEffect(() => {
     document.title = 'Instaverse';
-  }, []);
+    dispatch(getStories());
+    dispatch(fetchAllTags());
+  }, [dispatch]);
 
   /** 
     if (isTagged) {
@@ -26,8 +28,6 @@ const Home = () => {
         dispatch(getStories());
     }
 */
-  dispatch(getStories());
-  dispatch(fetchAllTags());
 
   return (
     <ErrorBoundary>

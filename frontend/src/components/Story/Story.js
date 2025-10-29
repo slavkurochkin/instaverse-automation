@@ -58,13 +58,15 @@ function Story({ story, setSelectedId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comment, setComment] = useState(''); // State to track comment input
-  const [comments, setComments] = useState([]); // Initialize with empty array
+  const [comments, setComments] = useState(story?.comments || []); // Initialize with story comments to prevent layout shift
   const [expand, setExpand] = useState(true); // Declare expand state
   const navigate = useNavigate();
   // Effect to update comments state when the story updates
   useEffect(() => {
     if (story && story.comments) {
-      setComments(story.comments); // Set initial comments from story prop
+      setComments(story.comments); // Update comments when story prop changes
+    } else if (story && !story.comments) {
+      setComments([]); // Ensure empty array if no comments
     }
   }, [story]); // Run the effect whenever story changes
 
@@ -223,7 +225,27 @@ function Story({ story, setSelectedId }) {
   return (
     <Card
       style={styles.card}
-      cover={<Image src={story.image} />}
+      cover={
+        <Image
+          src={story.image}
+          width="100%"
+          preview={false}
+          style={{ aspectRatio: '1 / 1', objectFit: 'cover' }}
+          placeholder={
+            <div
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+                backgroundColor: '#f0f0f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          }
+          loading="lazy"
+        />
+      }
       actions={
         user?.result?._id === story?.userId
           ? cardActions
@@ -289,6 +311,7 @@ function Story({ story, setSelectedId }) {
 
         <List
           dataSource={comments}
+          locale={{ emptyText: '' }}
           renderItem={(comment, index) => (
             <List.Item key={index}>
               <List.Item.Meta

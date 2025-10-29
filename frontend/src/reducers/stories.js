@@ -7,7 +7,7 @@ const storyReducer = (state = [], action) => {
     case 'FETCH_STORIES_BY_TAG':
       return action.payload;
     case 'CREATE_STORY':
-      return [...state, action.payload];
+      return [action.payload, ...state];
     case 'UPDATE_STORY':
       return state.map((story) =>
         story._id === action.payload._id ? action.payload : story,

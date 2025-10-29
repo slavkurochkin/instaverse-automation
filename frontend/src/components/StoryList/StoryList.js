@@ -221,7 +221,7 @@ export default function StoryList({ setSelectedId }) {
       ) : (
         <Row gutter={[48, 32]}>
           {sortedStories.slice(0, visibleCount).map((story) => (
-            <Col key={`${story._id}-${visibleCount}`} lg={24} xl={12} xxl={8}>
+            <Col key={story._id} lg={24} xl={12} xxl={8}>
               <Story setSelectedId={setSelectedId} story={story} />
             </Col>
           ))}
