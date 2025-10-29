@@ -6,6 +6,8 @@ backend/.DS_Store
 backend/node_modules
 backend/.env.*
 backend/coverage
+backend/public/images/*
+!backend/public/images/.gitkeep
 
 frontend/node_modules
 frontend/.env.*

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 // import profiles from "../data/users.json" with { type: "json" };
-import { readFileSync } from "fs";
-const profiles = JSON.parse(
-  readFileSync(new URL("../../data/users.json", import.meta.url))
-);
+import { users } from "./users.js";
+
+// Use the shared in-memory users array instead of static JSON data
+const profiles = users;
 
 const getProfile = async (req, res) => {
   try {
