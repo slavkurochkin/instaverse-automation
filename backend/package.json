@@ -10,6 +10,8 @@
     "test": "node --experimental-vm-modules node_modules/jest/.bin/jest",
     "test:unit": "node --experimental-vm-modules node_modules/.bin/jest __tests__/unit",
     "test:contract": "node --experimental-vm-modules node_modules/.bin/jest __tests__/contract",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project node-express ./ && sentry-cli sourcemaps upload --org instaverse --project node-express ./"
   },
   "author": "",
