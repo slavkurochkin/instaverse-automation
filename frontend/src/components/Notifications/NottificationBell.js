@@ -18,24 +18,30 @@ const NotificationBell = ({ userId }) => {
         const newNotification = JSON.parse(event.data);
         console.log('Parsed notification:', newNotification);
 
-        // Ignore system messages like "user_back_online"
-        if (newNotification.type === 'user_back_online') {
+        // Ignore system messages
+        if (
+          newNotification.type === 'user_back_online' ||
+          newNotification.type === 'CONNECTED'
+        ) {
           console.log('System message ignored:', newNotification);
           return;
         }
 
-        // Only add valid LIKE notifications
+        // Add valid LIKE and COMMENT notifications
         if (
           newNotification.type === 'LIKE' &&
           newNotification.username &&
           newNotification.postTitle
         ) {
-          console.log('Adding notification to list:', newNotification);
-          setNotifications((prev) => {
-            const updated = [...prev, newNotification];
-            console.log('Updated notifications array:', updated);
-            return updated;
-          });
+          console.log('Adding LIKE notification to list:', newNotification);
+          setNotifications((prev) => [...prev, newNotification]);
+        } else if (
+          newNotification.type === 'COMMENT' &&
+          newNotification.username &&
+          newNotification.text
+        ) {
+          console.log('Adding COMMENT notification to list:', newNotification);
+          setNotifications((prev) => [...prev, newNotification]);
         } else {
           console.warn('Invalid notification format:', newNotification);
         }
@@ -88,12 +94,19 @@ const NotificationBell = ({ userId }) => {
             dataSource={notifications}
             renderItem={(item) => {
               console.log('Rendering notification item:', item);
+              const description =
+                item.type === 'LIKE'
+                  ? `Liked your post: ${item.postTitle || 'Untitled'}`
+                  : item.type === 'COMMENT'
+                    ? `Commented: "${item.text?.substring(0, 50) || 'No text'}${item.text?.length > 50 ? '...' : ''}"`
+                    : 'Notification';
+
               return (
                 <List.Item>
                   <List.Item.Meta
                     avatar={<Avatar>{item.username?.charAt(0) || '?'}</Avatar>}
                     title={<strong>{item.username || 'Unknown User'}</strong>}
-                    description={`Liked your post: ${item.postTitle || 'Untitled'}`}
+                    description={description}
                   />
                 </List.Item>
               );

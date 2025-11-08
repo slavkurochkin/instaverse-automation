@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Card,
   Tooltip,
@@ -61,6 +61,17 @@ function Story({ story, setSelectedId }) {
   const [comments, setComments] = useState(story?.comments || []); // Initialize with story comments to prevent layout shift
   const [expand, setExpand] = useState(true); // Declare expand state
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we're currently viewing this user's profile
+  const queryParams = new URLSearchParams(location.search);
+  const currentProfileUserId = queryParams.get('userId');
+  const isOnUserProfile =
+    location.pathname === '/profile' &&
+    (currentProfileUserId === String(story.userId) ||
+      (!currentProfileUserId &&
+        story.userId ===
+          JSON.parse(localStorage.getItem('profile'))?.result?._id));
   // Effect to update comments state when the story updates
   useEffect(() => {
     if (story && story.comments) {
@@ -164,7 +175,7 @@ function Story({ story, setSelectedId }) {
         }}
       >
         <HeartTwoTone twoToneColor="magenta" />
-        &nbsp; {story.likes.length} &nbsp;
+        &nbsp; {(story.likes || []).length} &nbsp;
       </Tooltip>
     </div>,
     <div key="comments">
@@ -258,14 +269,16 @@ function Story({ story, setSelectedId }) {
         title={
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span>{story.username}</span>
-            <Button
-              type="link"
-              icon={<UserOutlined />}
-              onClick={() => navigateToProfile(story.userId)}
-              style={{ marginLeft: 8 }}
-            >
-              View profile
-            </Button>
+            {!isOnUserProfile && story.userId && (
+              <Button
+                type="link"
+                icon={<UserOutlined />}
+                onClick={() => navigateToProfile(story.userId)}
+                style={{ marginLeft: 8 }}
+              >
+                View profile
+              </Button>
+            )}
           </div>
         }
       />

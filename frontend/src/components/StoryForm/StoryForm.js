@@ -17,6 +17,7 @@ import { createStory, updateStory } from '../../actions/stories';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import * as api from '../../api';
 
 const { Title } = Typography;
 
@@ -29,7 +30,6 @@ function StoryForm({
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const user = JSON.parse(localStorage.getItem('profile'));
-  const username = user?.result?.username;
   const [uploadProgress, setUploadProgress] = useState(0); // State for tracking upload progress
   const [showProgressBar, setShowProgressBar] = useState(false); // State to control visibility of progress bar
   const [showSuccess, setShowSuccess] = useState(false); // State to control visibility of success message
@@ -47,7 +47,12 @@ function StoryForm({
 
   useEffect(() => {
     if (story) {
-      form.setFieldsValue(story);
+      // Convert tags array to comma-separated string for display in TextArea
+      const storyData = {
+        ...story,
+        tags: Array.isArray(story.tags) ? story.tags.join(', ') : story.tags,
+      };
+      form.setFieldsValue(storyData);
     }
   }, [story, form]);
 
@@ -57,27 +62,40 @@ function StoryForm({
     setShowProgressBar(true);
 
     try {
-      const formData = { ...formValues, username };
+      setUploadProgress(20); // Start progress
 
-      // Simulate async operation (uploading could be asynchronous)
-      await new Promise((resolve) => {
-        const interval = setInterval(() => {
-          setUploadProgress((prevProgress) => {
-            const nextProgress = prevProgress + 10; // Increment progress
-            if (nextProgress >= 100) {
-              clearInterval(interval);
-              resolve();
-              return 100;
-            }
-            return nextProgress;
-          });
-        }, 500); // Adjust timing based on your upload process
-      });
+      // Upload image to image service if it's base64
+      let imageUrl = formValues.image;
+      if (formValues.image && formValues.image.startsWith('data:image/')) {
+        setUploadProgress(30);
+        const uploadResponse = await api.uploadImage(formValues.image);
+        imageUrl = uploadResponse.data.url; // Get the URL from image service
+        setUploadProgress(60);
+      }
+
+      // Convert tags from string to array if it's a string
+      const formData = {
+        ...formValues,
+        image: imageUrl, // Use URL instead of base64
+        // Don't send username - backend gets it from authenticated user
+        tags: formValues.tags
+          ? typeof formValues.tags === 'string'
+            ? formValues.tags
+                .split(',')
+                .map((tag) => tag.trim())
+                .filter((tag) => tag)
+            : formValues.tags
+          : [],
+      };
+
+      setUploadProgress(80);
 
       // Dispatch action to create or update story after upload
       selectedId
         ? dispatch(updateStory(selectedId, formData))
         : dispatch(createStory(formData));
+
+      setUploadProgress(100);
 
       reset();
       setShowSuccess(true); // Show success message

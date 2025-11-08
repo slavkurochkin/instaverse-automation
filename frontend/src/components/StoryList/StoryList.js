@@ -51,12 +51,12 @@ export default function StoryList({ setSelectedId }) {
       let comparison = 0;
 
       if (sortCriteria === 'likes') {
-        const aLikes = a.likes.length;
-        const bLikes = b.likes.length;
+        const aLikes = (a.likes || []).length;
+        const bLikes = (b.likes || []).length;
         comparison = sortOrder === 'asc' ? aLikes - bLikes : bLikes - aLikes;
       } else if (sortCriteria === 'date') {
-        const aDate = new Date(a.postDate).getTime();
-        const bDate = new Date(b.postDate).getTime();
+        const aDate = new Date(a.postDate || 0).getTime();
+        const bDate = new Date(b.postDate || 0).getTime();
         comparison = sortOrder === 'asc' ? aDate - bDate : bDate - aDate;
       }
 
@@ -80,7 +80,7 @@ export default function StoryList({ setSelectedId }) {
     if (!searchQuery) return stories; // If no search query, return original stories
 
     return stories.filter((story) =>
-      story.tags.some((tag) =>
+      (story.tags || []).some((tag) =>
         tag.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     );

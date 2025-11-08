@@ -98,7 +98,9 @@ export default function Profile() {
   const location = useLocation(); // Get the location object
   const queryParams = new URLSearchParams(location.search);
   const userId = queryParams.get('userId'); // Extract the userId query param if it exists
-  const currentUser = user?.result?._id;
+  // Support both old and new token structures
+  const currentUser =
+    user?.result?._id || user?.result?.id || user?._id || user?.id;
   const dispatch = useDispatch();
   const [id, setId] = useState(null); // Use userId if available, otherwise fallback to profile id
   const [userProfile, setUserProfile] = useState(null);
@@ -108,10 +110,10 @@ export default function Profile() {
   useEffect(() => {
     if (userId) {
       setId(userId);
-    } else if (user?.result?._id) {
+    } else if (currentUser) {
       setId(currentUser);
     }
-  }, [userId, user, currentUser]);
+  }, [userId, currentUser]);
 
   useEffect(() => {
     if (id) {

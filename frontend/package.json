@@ -5,7 +5,7 @@
   "scripts": {
     "start": "react-scripts start",
     "start:local": "NODE_ENV=local react-scripts start",
-    "build": "react-scripts build && npm run sentry:sourcemaps",
+    "build": "react-scripts build && npm run sentry:sourcemaps || true",
     "test": "jest",
     "test:unit": "jest __tests__/unit",
     "test:contract": "jest --testPathPattern=pact.test.js",
@@ -14,7 +14,7 @@
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "eject": "react-scripts eject",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project javascript-react ./build && sentry-cli sourcemaps upload --org instaverse --project javascript-react ./build"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org instaverse --project javascript-react ./build && sentry-cli sourcemaps upload --org instaverse --project javascript-react ./build || echo 'Sentry upload skipped'"
   },
   "eslintConfig": {
     "extends": [

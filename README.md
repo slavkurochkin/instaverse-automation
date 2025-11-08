@@ -1,19 +1,23 @@
 # Instaverse Automation
 
-Instaverse Automation is a full-stack web project using React as the frontend, Express.js as the backend and PostgreSQL as Database. The project includes linting and code formatting tools (ESLint and Prettier), Docker support for containerization, and OpenAPI for API documentation.
+Instaverse Automation is a full-stack web application available in both **monolithic** and **microservices** architectures. Built with React frontend, Node.js/Express backend, and PostgreSQL databases. The project includes comprehensive testing, monitoring, and DevOps tools.
+
+## Table of Contents
 
 - [Application Demo](#application-demo)
-- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+  - [Monolithic Architecture](#monolithic-architecture)
+  - [Microservices Architecture](#microservices-architecture)
 - [Features](#features)
 - [Getting Started](#getting-started)
+  - [Monolithic Setup](#monolithic-setup)
+  - [Microservices Setup](#microservices-setup)
 - [Database Setup](#database-setup)
+- [Microservices Details](#microservices-details)
 - [Notifications System](#notification-system-overview)
 - [API Documentation](#api-documentation)
-- [SonatQube Configuration](##sonarqube-configuration)
+- [SonatQube Configuration](#sonarqube-configuration)
 - [Testing](#testing)
-  - [E2E Testing with Playwright](#e2e-testing-with-playwright)
-  - [Contract Testing with Pact](#contract-testing)
-  - [Unit Testing and Coverage with Jest](#unit-testing-and-coverage)
 - [Pre-Commit Hooks Setup](#pre-commit-hooks-setup)
 - [Monitoring and Observability](#monitoring-and-observability-with-sentry)
 - [Contributing](#contributing)
@@ -32,30 +36,174 @@ Adding new story and deleting it
 
 ![Application Demo](/assets/instaverse-3.gif)
 
-## Project Structure
+## Architecture
 
-The project has the following structure:
+This project supports both **monolithic** and **microservices** architectures.
+
+### Monolithic Architecture
+
+Traditional single-application architecture where all components run together:
+
+```
+┌─────────────────┐
+│  React Frontend │
+│   (Port: 3000)  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│   Express Backend (5001)    │
+│  ┌─────────────────────┐   │
+│  │  User Routes        │   │
+│  │  Story Routes       │   │
+│  │  Social Routes      │   │
+│  └─────────────────────┘   │
+└──────────┬──────────────────┘
+           │
+     ┌─────┴──────┐
+     ▼            ▼
+┌──────────┐  ┌──────────────┐
+│PostgreSQL│  │   RabbitMQ   │
+│  (5432)  │  │   (5672)     │
+└──────────┘  └──────┬───────┘
+                     │
+              ┌──────▼───────┐
+              │ WebSocket    │
+              │ Server:8080  │
+              └──────────────┘
+```
+
+### Microservices Architecture
+
+Modern distributed architecture with independent services:
+
+```
+                    ┌─────────────────┐
+                    │  React Frontend │
+                    │   (Port: 3000)  │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │  API Gateway    │
+                    │   (Port: 8000)  │
+                    └────────┬────────┘
+                             │
+        ┌────────────────────┼────────────────────┬─────────────────┐
+        │                    │                    │                 │
+        ▼                    ▼                    ▼                 ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐  ┌────────────────┐
+│ Auth Service │    │Story Service │    │Social Service│  │  Notification  │
+│ (Port: 5001) │    │ (Port: 5002) │    │ (Port: 5003) │  │Service (5004)  │
+└──────┬───────┘    └──────┬───────┘    └──────┬───────┘  └───────┬────────┘
+       │                   │                    │                  │
+       ▼                   ▼                    ▼                  │
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐         │
+│  Auth DB     │    │  Story DB    │    │  Social DB   │         │
+│ (Port: 5435) │    │ (Port: 5433) │    │ (Port: 5434) │         │
+└──────────────┘    └──────────────┘    └──────────────┘         │
+       │                   │                    │                  │
+       └───────────────────┼────────────────────┴──────────────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │    RabbitMQ     │
+                  │ Message Broker  │
+                  │   (Port: 5672)  │
+                  │Management:15672 │
+                  └─────────────────┘
+```
+
+## Project Structure
 
 ```
 instaverse-automation/
-├── frontend/          # React frontend
-├── backend/           # Express backend
-├── docker-compose.yml # Docker setup
-├── package.json       # Root package file with scripts for both services
-└── README.md          # Project documentation
+├── frontend/                 # React frontend application
+│   ├── src/                  # Source code
+│   ├── public/               # Static assets
+│   ├── Dockerfile            # Monolithic Docker config
+│   └── Dockerfile.microservices  # Microservices Docker config
+│
+├── backend/                  # Monolithic Express backend
+│   ├── controllers/          # Route controllers
+│   ├── models/              # Database models
+│   ├── routes/              # API routes
+│   └── consumer.js          # RabbitMQ consumer
+│
+├── services/                 # Microservices
+│   ├── shared/              # Shared utilities and middleware
+│   │   ├── events/          # RabbitMQ event handlers
+│   │   ├── middleware/      # Common middleware
+│   │   └── utils/           # Utility functions
+│   │
+│   ├── api-gateway/         # API Gateway (Port: 8000)
+│   │   └── src/
+│   │       ├── routes/      # Gateway routing
+│   │       └── middleware/  # Auth, CORS, rate limiting
+│   │
+│   ├── auth-service/        # Authentication Service (Port: 5001)
+│   │   └── src/
+│   │       ├── controllers/ # Auth controllers
+│   │       ├── routes/      # Auth routes
+│   │       └── services/    # Business logic
+│   │
+│   ├── story-service/       # Story/Post Service (Port: 5002)
+│   │   └── src/
+│   │       ├── controllers/ # Story controllers
+│   │       ├── routes/      # Story routes
+│   │       └── services/    # Business logic
+│   │
+│   ├── social-service/      # Social Interactions (Port: 5003)
+│   │   └── src/
+│   │       ├── controllers/ # Likes, comments controllers
+│   │       ├── routes/      # Social routes
+│   │       └── services/    # Business logic
+│   │
+│   └── notification-service/ # Real-time Notifications (Port: 5004)
+│       └── src/
+│           ├── events/      # RabbitMQ consumers
+│           └── websocket/   # WebSocket server
+│
+├── database/                 # Database migrations
+│   └── migrations/
+│       ├── auth/            # Auth service migrations
+│       ├── story/           # Story service migrations
+│       └── social/          # Social service migrations
+│
+├── docker-compose.yml           # Monolithic Docker setup
+├── docker-compose.microservices.yml  # Microservices Docker setup
+├── start-microservices.sh       # Start microservices script
+└── stop-microservices.sh        # Stop microservices script
 ```
 
 ## Features
 
-- **Frontend:** Built with React.
-- **Backend:** Built with Express.js.
-- **Database:** PostgreSQL.
-- **Linting & Formatting:** Configured with ESLint and Prettier.
-- **Security Scanner:** SonarQube
-- **Docker Support:** Docker and Docker Compose configured for containerization.
-- **OpenAPI:** API documentation using OpenAPI standard.
-- **Contract Testing:** Pactflow
-- **Unit Testing:** Jest
+### Core Features
+- **Frontend:** React with Ant Design UI components
+- **Backend:** Node.js + Express.js (Monolithic & Microservices)
+- **Database:** PostgreSQL with separate databases per microservice
+- **Real-time:** WebSocket-based notifications
+- **Message Queue:** RabbitMQ for event-driven architecture
+
+### Architecture Options
+- **Monolithic:** Traditional single-application architecture
+- **Microservices:** Distributed architecture with 5 independent services
+  - API Gateway for routing and authentication
+  - Auth Service for user management
+  - Story Service for posts/stories
+  - Social Service for likes/comments
+  - Notification Service for real-time updates
+
+### Development Tools
+- **Linting & Formatting:** ESLint and Prettier
+- **Security Scanner:** SonarQube integration
+- **Docker Support:** Full containerization with Docker Compose
+- **API Documentation:** OpenAPI/Swagger documentation
+- **Contract Testing:** Pact for consumer-driven contracts
+- **Unit Testing:** Jest with coverage reports
+- **E2E Testing:** Playwright for end-to-end tests
+- **Monitoring:** Sentry for error tracking
+- **Pre-commit Hooks:** Automated testing before commits
 
 ## Getting Started
 
@@ -64,35 +212,411 @@ instaverse-automation/
 - Node.js (>=14.x)
 - npm (>=7.x)
 - Docker and Docker Compose
+- PostgreSQL (for local development without Docker)
 
-### Installation
+### Monolithic Setup
 
-Install dependencies for the entire project (root, frontend, and backend):
+For the traditional monolithic architecture:
+
+#### 1. Install Dependencies
 
 ```bash
 npm run install:all
 ```
 
-### Running the Project
+#### 2. Start the Application
 
-Start both frontend and backend servers concurrently:
-
+**Option A: Using npm (development)**
 ```bash
 npm start
 ```
 
-Run frontend and backend separately if needed:
+This will start both frontend and backend concurrently.
+
+**Option B: Using Docker Compose**
+```bash
+docker-compose up --build
+```
+
+#### 3. Access the Application
+- **Frontend:** http://localhost:3000
+- **Backend:** http://localhost:5001
+- **API Docs:** http://localhost:5001/api-docs
+
+### Microservices Setup
+
+For the modern microservices architecture:
+
+#### 1. Quick Start (Recommended)
+
+Use the provided startup script:
 
 ```bash
-npm run start:frontend
-npm run start:backend
+chmod +x start-microservices.sh
+./start-microservices.sh
 ```
+
+This script will:
+- ✅ Check Docker is running
+- ✅ Build and start all services
+- ✅ Initialize databases
+- ✅ Check service health
+- ✅ Display service status
+
+#### 2. Manual Setup
+
+**Start all services:**
+```bash
+docker-compose -f docker-compose.microservices.yml up --build -d
+```
+
+**Check service health:**
+```bash
+docker-compose -f docker-compose.microservices.yml ps
+```
+
+**View logs for a specific service:**
+```bash
+docker-compose -f docker-compose.microservices.yml logs -f story-service
+```
+
+**Stop all services:**
+```bash
+./stop-microservices.sh
+# or
+docker-compose -f docker-compose.microservices.yml down
+```
+
+#### 3. Access Services
+
+Once all services are running:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Frontend** | http://localhost:3000 | React application |
+| **API Gateway** | http://localhost:8000 | Single entry point for all APIs |
+| **Auth Service** | http://localhost:5001 | User authentication |
+| **Story Service** | http://localhost:5002 | Posts/stories management |
+| **Social Service** | http://localhost:5003 | Likes and comments |
+| **Notification Service** | http://localhost:5004 | HTTP health check |
+| **WebSocket** | ws://localhost:8080 | Real-time notifications |
+| **RabbitMQ Management** | http://localhost:15672 | Message queue admin (admin/password) |
+
+#### 4. Service Health Check
+
+All microservices expose a `/health` endpoint:
+
+```bash
+# Check all services
+curl http://localhost:8000/health  # API Gateway
+curl http://localhost:5001/health  # Auth Service
+curl http://localhost:5002/health  # Story Service
+curl http://localhost:5003/health  # Social Service
+curl http://localhost:5004/health  # Notification Service
+```
+
+#### 5. Database Access
+
+Each service has its own PostgreSQL database:
+
+```bash
+# Auth Database (Port: 5435)
+docker exec -it auth-db psql -U admin -d auth_db
+
+# Story Database (Port: 5433)
+docker exec -it story-db psql -U admin -d story_db
+
+# Social Database (Port: 5434)
+docker exec -it social-db psql -U admin -d social_db
+```
+
+## Microservices Details
+
+### Overview
+
+The microservices architecture consists of 5 independent services, each with its own responsibility, database, and API endpoints. Services communicate via REST APIs and event-driven messaging through RabbitMQ.
+
+### 1. API Gateway (Port: 8000)
+
+**Purpose:** Single entry point for all client requests
+
+**Responsibilities:**
+- Route requests to appropriate microservices
+- JWT authentication and validation
+- CORS handling and security headers
+- Request/response logging
+- Health check aggregation
+
+**Key Endpoints:**
+```
+GET  /health              # Gateway health status
+POST /api/auth/*          # Routes to Auth Service
+GET  /api/stories/*       # Routes to Story Service
+POST /api/social/*        # Routes to Social Service
+```
+
+**Technology Stack:**
+- Node.js + Express
+- JWT validation middleware
+- HTTP proxy for routing
+
+---
+
+### 2. Auth Service (Port: 5001)
+
+**Purpose:** User authentication and management
+
+**Responsibilities:**
+- User registration and login
+- JWT token generation and validation
+- Password hashing (bcrypt)
+- User profile management
+- User data retrieval
+
+**Database:** `auth_db` (PostgreSQL on port 5435)
+
+**Tables:**
+- `users` - User accounts and profiles
+
+**Key Endpoints:**
+```
+POST /api/auth/register        # Create new user account
+POST /api/auth/login           # Authenticate and get JWT token
+GET  /api/auth/profile/:id     # Get user profile
+PUT  /api/auth/profile/:id     # Update user profile
+DELETE /api/auth/users/:id     # Delete user (admin only)
+GET  /health                   # Service health check
+```
+
+**Events Published:**
+- `user.registered` - When a new user signs up
+- `user.deleted` - When a user account is deleted
+- `user.updated` - When user profile is updated
+
+---
+
+### 3. Story Service (Port: 5002)
+
+**Purpose:** Manage posts/stories content
+
+**Responsibilities:**
+- CRUD operations for posts
+- Image upload and storage
+- Post search and filtering
+- Tag management
+- Category organization
+
+**Database:** `story_db` (PostgreSQL on port 5433)
+
+**Tables:**
+- `posts` - Story/post content
+- `post_tags` - Tags associated with posts
+- `post_social` - Social media sharing platforms
+
+**Key Endpoints:**
+```
+GET  /api/stories              # Get all stories (paginated)
+GET  /api/stories/:id          # Get single story by ID
+POST /api/stories              # Create new story
+PUT  /api/stories/:id          # Update existing story
+DELETE /api/stories/:id        # Delete story
+GET  /api/stories/user/:userId # Get stories by user
+GET  /api/stories/search       # Search stories
+GET  /health                   # Service health check
+```
+
+**Events Published:**
+- `post.created` - When a new post is created
+- `post.updated` - When a post is modified
+- `post.deleted` - When a post is deleted
+
+**Events Consumed:**
+- `user.deleted` - Delete all posts by deleted user
+
+---
+
+### 4. Social Service (Port: 5003)
+
+**Purpose:** Handle social interactions (likes, comments, shares)
+
+**Responsibilities:**
+- Like/unlike posts
+- Add/delete comments
+- Track social interactions
+- Share posts to social media
+- Manage user engagement
+
+**Database:** `social_db` (PostgreSQL on port 5434)
+
+**Tables:**
+- `post_likes` - User likes on posts
+- `post_comments` - Comments on posts
+- `post_social` - Social sharing records
+
+**Key Endpoints:**
+```
+POST   /api/social/likes/:postId      # Like a post (toggle)
+DELETE /api/social/likes/:postId      # Unlike a post
+GET    /api/social/likes/:postId      # Get likes for a post
+
+POST   /api/social/comments/:postId   # Add comment to post
+GET    /api/social/comments/:postId   # Get comments for a post
+DELETE /api/social/comments/:commentId # Delete a comment
+
+POST   /api/social/shares/:postId     # Share post
+GET    /health                         # Service health check
+```
+
+**Events Published:**
+- `post.liked` - When a user likes a post
+- `post.unliked` - When a user unlikes a post
+- `post.commented` - When a comment is added
+- `comment.deleted` - When a comment is removed
+- `post.shared` - When a post is shared
+
+**Events Consumed:**
+- `user.deleted` - Delete all likes/comments by deleted user
+
+---
+
+### 5. Notification Service (Port: 5004, WebSocket: 8080)
+
+**Purpose:** Real-time notifications via WebSocket
+
+**Responsibilities:**
+- WebSocket server for real-time communication
+- Consume events from RabbitMQ
+- Send notifications to connected users
+- Store notifications for offline users
+- Deliver pending notifications on reconnect
+
+**Technology Stack:**
+- Node.js + Express (HTTP)
+- WebSocket (ws library)
+- RabbitMQ consumer
+
+**Key Endpoints:**
+```
+GET /health                    # Service health check
+WS  ws://localhost:8080?userId=<id>  # WebSocket connection
+```
+
+**Events Consumed:**
+- `post.liked` - Notify post owner
+- `post.commented` - Notify post owner
+- `post.shared` - Notify post owner
+- `user.registered` - Send welcome notification
+
+**Notification Types:**
+```javascript
+{
+  type: 'LIKE',
+  postId: 123,
+  username: 'john_doe',
+  message: 'john_doe liked your post',
+  timestamp: '2024-11-08T...'
+}
+
+{
+  type: 'COMMENT',
+  postId: 123,
+  commentId: 'uuid',
+  username: 'jane_smith',
+  text: 'Great photo!',
+  message: 'jane_smith commented on your post',
+  timestamp: '2024-11-08T...'
+}
+```
+
+---
+
+### Inter-Service Communication
+
+#### Synchronous (REST API)
+Services make direct HTTP calls when immediate response is needed:
+
+```javascript
+// Story Service fetching user data from Auth Service
+const response = await axios.get(`${AUTH_SERVICE_URL}/api/auth/profile/${userId}`);
+```
+
+#### Asynchronous (Event-Driven)
+Services publish events to RabbitMQ for loose coupling:
+
+```javascript
+// Social Service publishing a like event
+await publishEvent('social.exchange', 'post.liked', {
+  postId: 123,
+  userId: 456,
+  timestamp: new Date().toISOString()
+});
+```
+
+#### Event Flow Example: User Likes a Post
+
+```
+1. Client → API Gateway: POST /api/social/likes/123
+2. API Gateway → Social Service: POST /likes/123
+3. Social Service: Save like to database
+4. Social Service → RabbitMQ: Publish POST_LIKED event
+5. RabbitMQ → Notification Service: Deliver event
+6. Notification Service → WebSocket: Send notification to post owner
+7. Post owner receives real-time notification ✅
+```
+
+---
+
+### Database Per Service Pattern
+
+Each microservice has its own database for:
+
+✅ **Data Isolation** - Services can't directly access other services' data  
+✅ **Independent Scaling** - Scale databases based on service needs  
+✅ **Technology Flexibility** - Use different DB types per service if needed  
+✅ **Fault Isolation** - DB failure affects only one service  
+
+**Database Ports:**
+- Auth DB: `localhost:5435`
+- Story DB: `localhost:5433`
+- Social DB: `localhost:5434`
+
+---
+
+### Shared Components
+
+Located in `/services/shared/`:
+
+**1. Event System (`events/`)**
+- `rabbitmq.js` - RabbitMQ connection and utilities
+- `eventTypes.js` - Event type constants and routing keys
+
+**2. Middleware (`middleware/`)**
+- `errorHandler.js` - Global error handling
+- Common middleware shared across services
+
+**3. Utilities (`utils/`)**
+- `logger.js` - Structured logging
+- `db.js` - Database connection pooling
+
+---
+
+### Benefits of This Architecture
+
+1. **Scalability** - Scale services independently based on load
+2. **Resilience** - Service failures are isolated
+3. **Development Speed** - Teams work on services in parallel
+4. **Technology Freedom** - Use best tech for each service
+5. **Deployment Flexibility** - Deploy services independently
+6. **Easier Testing** - Test services in isolation
+7. **Better Monitoring** - Track performance per service
+
+---
 
 # Database Setup
 
 ## Overview
 
-This document provides the schema and setup instructions for the database used in the project. It covers table structures, relationships, and key queries related to managing users, posts, and associated data.
+This document provides the schema and setup instructions for the databases used in the project. In microservices architecture, each service has its own database.
 
 ## Database Schema
 
